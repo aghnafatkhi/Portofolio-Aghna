@@ -19,6 +19,38 @@ type Project = {
   tools: string[];
 };
 
+interface OptimizedImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+  fill?: boolean;
+}
+
+function OptimizedImage({ src, alt, className = '', fill = false }: OptimizedImageProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden bg-neutral-100">
+      {isLoading && (
+        <div className="absolute inset-0 bg-neutral-100 animate-pulse z-10 flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-black/10 border-t-accent rounded-full animate-spin" />
+        </div>
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        fill={fill}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        className={`transition-all duration-700 ease-out object-contain ${
+          isLoading ? 'scale-[1.02] blur-sm opacity-0' : 'scale-100 blur-0 opacity-100'
+        } ${className}`}
+        onLoad={() => setIsLoading(false)}
+        referrerPolicy="no-referrer"
+      />
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -357,12 +389,11 @@ export default function Portfolio() {
                       {p.year}
                     </span>
                   </div>
-                  <img 
+                  <OptimizedImage 
                     src={p.img} 
                     alt={p.title} 
-                    className="w-full h-full object-contain block group-hover:scale-[1.04] transition-transform duration-700 ease-out" 
-                    loading="lazy"
-                    referrerPolicy="no-referrer" 
+                    fill 
+                    className="group-hover:scale-[1.04]" 
                   />
                   <div className="absolute inset-0 bg-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
@@ -491,12 +522,12 @@ export default function Portfolio() {
                 <X size={20} />
               </button>
 
-              <div className="w-full md:w-1/2 bg-neutral-100 flex items-center justify-center p-8 lg:p-12 border-b md:border-b-0 md:border-r border-black/5">
-                <img 
+              <div className="w-full md:w-1/2 bg-neutral-100 flex items-center justify-center p-8 lg:p-12 border-b md:border-b-0 md:border-r border-black/5 relative min-h-[40vh] md:min-h-[50vh]">
+                <OptimizedImage 
                   src={selectedProject.img} 
                   alt={selectedProject.title} 
-                  className="w-full h-auto max-h-[50vh] object-contain drop-shadow-xl"
-                  referrerPolicy="no-referrer"
+                  fill
+                  className="p-4"
                 />
               </div>
 
