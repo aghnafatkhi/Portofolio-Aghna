@@ -24,9 +24,10 @@ interface OptimizedImageProps {
   alt: string;
   className?: string;
   fill?: boolean;
+  priority?: boolean;
 }
 
-function OptimizedImage({ src, alt, className = '', fill = false }: OptimizedImageProps) {
+function OptimizedImage({ src, alt, className = '', fill = false, priority = false }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -40,6 +41,7 @@ function OptimizedImage({ src, alt, className = '', fill = false }: OptimizedIma
         src={src}
         alt={alt}
         fill={fill}
+        priority={priority}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className={`transition-all duration-700 ease-out object-contain ${
           isLoading ? 'scale-[1.02] blur-sm opacity-0' : 'scale-100 blur-0 opacity-100'
@@ -55,7 +57,6 @@ export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [showShowreel, setShowShowreel] = useState(false);
   const { scrollYProgress } = useScroll();
   const yHero = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
@@ -66,6 +67,8 @@ export default function Portfolio() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+
 
   const navLinks = [
     { name: 'INDEX', href: '#beranda' },
@@ -174,24 +177,19 @@ export default function Portfolio() {
       {/* Hero Section */}
       <section id="beranda" className="relative min-h-[100vh] w-full flex flex-col justify-center overflow-hidden bg-neutral-50 border-b border-black/5">
         
-        {/* Partial Background Video - Pure Widescreen Covering Trick */}
+        {/* Sleek Swiss-style editorial structure background graphic */}
         <div 
-          onClick={() => setShowShowreel(true)}
-          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 hover:opacity-35 transition-all duration-500 cursor-pointer overflow-hidden group/vid"
-          style={{ maskImage: 'linear-gradient(to right, transparent, black 45%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 45%)' }}
+          className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 opacity-[0.03] lg:opacity-[0.05] pointer-events-none select-none overflow-hidden flex items-center justify-center"
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.77vh] min-w-full h-full min-h-[56.25vw]">
-            <iframe 
-              src="https://player.vimeo.com/video/1194906889?autoplay=1&loop=1&autopause=0&muted=1&background=1" 
-              className="w-full h-full pointer-events-none filter grayscale block border-none scale-105"
-              allow="autoplay; fullscreen"
-              title="Aghna Fatkhi Showreel Background"
-            />
+          {/* Subtle Grid Lines & Vertical Typography */}
+          <div className="absolute inset-0 grid grid-cols-4 h-full w-full border-l border-black/5">
+            <div className="border-r border-black/5 h-full" />
+            <div className="border-r border-black/5 h-full" />
+            <div className="border-r border-black/5 h-full" />
+            <div className="h-full" />
           </div>
-          {/* Subtle floating play indicator in the video area */}
-          <div className="absolute right-8 bottom-8 md:right-12 md:bottom-12 hidden md:flex items-center gap-3 bg-dark/75 text-white backdrop-blur-md px-5 py-3 border border-white/10 rounded-none opacity-0 group-hover/vid:opacity-100 transition-all duration-500 translate-y-3 group-hover/vid:translate-y-0 shadow-lg">
-            <Play className="w-3 h-3 fill-accent text-accent" />
-            <span className="text-[10px] font-black tracking-[0.25em] uppercase">PLAY SHOWREEL</span>
+          <div className="font-heading text-[12rem] sm:text-[18rem] md:text-[22rem] font-black tracking-tighter text-dark select-none absolute right-[-8%] rotate-90 origin-right whitespace-nowrap opacity-[0.35]">
+            CREATIVE
           </div>
         </div>
 
@@ -393,6 +391,7 @@ export default function Portfolio() {
                     src={p.img} 
                     alt={p.title} 
                     fill 
+                    priority={idx < 2}
                     className="group-hover:scale-[1.04]" 
                   />
                   <div className="absolute inset-0 bg-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -562,45 +561,7 @@ export default function Portfolio() {
         )}
       </AnimatePresence>
 
-      {/* Showreel Video Modal */}
-      <AnimatePresence>
-        {showShowreel && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12"
-          >
-            <div 
-              className="absolute inset-0 bg-dark/95 backdrop-blur-md cursor-pointer" 
-              onClick={() => setShowShowreel(false)}
-            />
-            <motion.div 
-              initial={{ y: 50, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 30, opacity: 0, scale: 0.95 }}
-              transition={{ delay: 0.1, type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full max-w-5xl aspect-video relative z-10 shadow-2xl bg-black rounded-sm overflow-hidden border border-white/10"
-            >
-              <button 
-                onClick={() => setShowShowreel(false)}
-                className="absolute top-4 right-4 z-20 w-12 h-12 bg-black/50 hover:bg-black text-white hover:text-accent rounded-full flex items-center justify-center transition-colors border border-white/20"
-              >
-                <X size={24} />
-              </button>
-              
-              <iframe 
-                src="https://player.vimeo.com/video/1194906889?autoplay=1" 
-                className="w-full h-full border-none"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                title="Aghna Fatkhi Showreel Video"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </div>
   );
 }
