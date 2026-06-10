@@ -57,8 +57,48 @@ export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showShowreel, setShowShowreel] = useState(false);
+  const [isVideoMounted, setIsVideoMounted] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [progress, setProgress] = useState(0);
   const { scrollYProgress } = useScroll();
   const yHero = useTransform(scrollYProgress, [0, 1], [0, -200]);
+
+  useEffect(() => {
+    // Lock body scroll during intro
+    if (showIntro) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showIntro]);
+
+  useEffect(() => {
+    if (!showIntro) return;
+    
+    const duration = 1600; // ms
+    const interval = 20; // step every 20ms
+    const totalSteps = duration / interval;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      const currentProgress = Math.min(Math.round((step / totalSteps) * 100), 100);
+      setProgress(currentProgress);
+
+      if (step >= totalSteps) {
+        clearInterval(timer);
+        setTimeout(() => {
+          setShowIntro(false);
+        }, 400);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [showIntro]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,6 +106,14 @@ export default function Portfolio() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Delay mounting local video slightly to let other critical layout, images, and content render fully first.
+    const timer = setTimeout(() => {
+      setIsVideoMounted(true);
+    }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
 
@@ -191,6 +239,26 @@ export default function Portfolio() {
           <div className="font-heading text-[12rem] sm:text-[18rem] md:text-[22rem] font-black tracking-tighter text-dark select-none absolute right-[-8%] rotate-90 origin-right whitespace-nowrap opacity-[0.35]">
             CREATIVE
           </div>
+        </div>
+
+        {/* Local Background Video - Sleek, Lag-free, Self-hosted */}
+        <div 
+          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 transition-all duration-500 overflow-hidden bg-neutral-100 select-none pointer-events-none"
+          style={{ maskImage: 'linear-gradient(to right, transparent, black 45%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 45%)' }}
+        >
+          {isVideoMounted ? (
+            <video
+              src="/showreel.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover grayscale brightness-95 opacity-80"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-neutral-200/50 animate-pulse" />
+          )}
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
@@ -561,6 +629,148 @@ export default function Portfolio() {
         )}
       </AnimatePresence>
 
+      {/* Showreel Video Modal */}
+      <AnimatePresence>
+        {showShowreel && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12"
+          >
+            <div 
+              className="absolute inset-0 bg-dark/95 backdrop-blur-md cursor-pointer" 
+              onClick={() => setShowShowreel(false)}
+            />
+            <motion.div 
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 30, opacity: 0, scale: 0.95 }}
+              transition={{ delay: 0.1, type: "spring", damping: 25, stiffness: 300 }}
+              className="w-full max-w-5xl aspect-video relative z-10 shadow-2xl bg-black rounded-sm overflow-hidden border border-white/10"
+            >
+              <button 
+                onClick={() => setShowShowreel(false)}
+                className="absolute top-4 right-4 z-20 w-12 h-12 bg-black/50 hover:bg-black text-white hover:text-accent rounded-full flex items-center justify-center transition-colors border border-white/20 cursor-pointer"
+              >
+                <X size={24} />
+              </button>
+              
+              <video 
+                src="/showreel.mp4" 
+                autoPlay
+                controls
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Swiss/Minimalist Typographic Opening Screen */}
+      <AnimatePresence mode="wait">
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 1, y: 0 }}
+            exit={{ 
+              y: "-100%",
+              transition: { duration: 0.85, ease: [0.76, 0, 0.24, 1] } 
+            }}
+            className="fixed inset-0 z-[200] bg-neutral-950 text-white flex flex-col justify-between p-6 sm:p-10 md:p-16 select-none overflow-hidden"
+          >
+            {/* Background Grid Lines to sync with structural layout */}
+            <div className="absolute inset-0 grid grid-cols-4 h-full w-full opacity-5 pointer-events-none">
+              <div className="border-r border-white h-full" />
+              <div className="border-r border-white h-full" />
+              <div className="border-r border-white h-full" />
+              <div className="h-full" />
+            </div>
+
+            {/* Top Bar Decoration */}
+            <div className="flex justify-between items-start w-full relative z-10 font-mono text-[9px] sm:text-xs tracking-[0.2em] text-neutral-500 uppercase">
+              <div className="flex flex-col gap-1">
+                <span>AGHNA FATKHI</span>
+                <span className="text-neutral-600">STUDENT & CREATOR // INDEX 2026</span>
+              </div>
+              <div className="text-right">
+                <span>[ STATUS: HEURISTIC_ACTIVE ]</span>
+              </div>
+            </div>
+
+            {/* Central Large Typographic Reveal */}
+            <div className="my-auto flex flex-col items-center justify-center relative z-10 w-full text-center">
+              <div className="overflow-hidden py-4 flex flex-wrap justify-center gap-x-2 md:gap-x-4">
+                {"AGHNA".split("").map((letter, index) => (
+                  <motion.span
+                    key={`ag-${index}`}
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: index * 0.08,
+                      ease: [0.16, 1, 0.3, 1]
+                    }}
+                    className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight uppercase leading-none text-white block select-none"
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+                
+                <span className="w-4 sm:w-6 md:w-8" /> {/* Space */}
+                
+                {"FATKHI".split("").map((letter, index) => (
+                  <motion.span
+                    key={`fa-${index}`}
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: (index + 5) * 0.08,
+                      ease: [0.16, 1, 0.3, 1]
+                    }}
+                    className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight uppercase leading-none text-white block select-none"
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </div>
+
+              {/* Minimal Line Loader underneath */}
+              <div className="w-full max-w-sm sm:max-w-md h-[2px] bg-neutral-900 rounded-full mt-4 overflow-hidden relative">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.1, ease: "easeOut" }}
+                  className="h-full bg-accent absolute left-0 top-0"
+                />
+              </div>
+
+              {/* Running metadata */}
+              <motion.span 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="font-mono text-[9px] sm:text-xs tracking-[0.3em] text-neutral-400 mt-6 uppercase"
+              >
+                CREATIVE DEVELOPER &bull; MULTIMEDIA PRODUCTIONS
+              </motion.span>
+            </div>
+
+            {/* Bottom Bar Indicator */}
+            <div className="flex justify-between items-end w-full relative z-10 font-mono text-[10px] sm:text-xs text-neutral-500 uppercase">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                <span className="tracking-widest">LOADING CORE_SYSTEM</span>
+              </div>
+              <div className="font-heading font-black tracking-widest text-lg sm:text-2xl text-accent">
+                {String(progress).padStart(3, '0')}%
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
