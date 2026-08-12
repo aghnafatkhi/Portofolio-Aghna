@@ -60,9 +60,10 @@ export default function Portfolio() {
   const [showShowreel, setShowShowreel] = useState(false);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const { scrollYProgress } = useScroll();
-  const yHero = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const [activeWordIndex, setActiveWordIndex] = useState(-1);
+  const [isIntroBright, setIsIntroBright] = useState(false);
+  const { scrollY } = useScroll();
+  const yHero = useTransform(scrollY, [0, 800], [0, -150]);
 
   useEffect(() => {
     // Lock body scroll during intro
@@ -78,26 +79,39 @@ export default function Portfolio() {
 
   useEffect(() => {
     if (!showIntro) return;
-    
-    const duration = 1600; // ms
-    const interval = 20; // step every 20ms
-    const totalSteps = duration / interval;
-    let step = 0;
 
-    const timer = setInterval(() => {
-      step++;
-      const currentProgress = Math.min(Math.round((step / totalSteps) * 100), 100);
-      setProgress(currentProgress);
+    // Word 1: "seni"
+    const t1 = setTimeout(() => {
+      setActiveWordIndex(0);
+    }, 600);
 
-      if (step >= totalSteps) {
-        clearInterval(timer);
-        setTimeout(() => {
-          setShowIntro(false);
-        }, 400);
-      }
-    }, interval);
+    // Word 2: "adalah"
+    const t2 = setTimeout(() => {
+      setActiveWordIndex(1);
+    }, 1400);
 
-    return () => clearInterval(timer);
+    // Word 3: "saya"
+    const t3 = setTimeout(() => {
+      setActiveWordIndex(2);
+    }, 2200);
+
+    // Transition to bright background
+    const t4 = setTimeout(() => {
+      setIsIntroBright(true);
+    }, 3400);
+
+    // Close intro and enter website
+    const t5 = setTimeout(() => {
+      setShowIntro(false);
+    }, 4700);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+    };
   }, [showIntro]);
 
   useEffect(() => {
@@ -143,15 +157,20 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 selection:bg-accent selection:text-white overflow-hidden">
+    <div className={`bg-neutral-50 selection:bg-accent selection:text-white transition-colors duration-[1500ms] ${showIntro ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {/* Noise Texture */}
       <div className="noise" />
 
       {/* Navigation */}
       <nav 
-        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-500 border-b ${
+        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-[1000ms] border-b ${
           isScrolled ? 'bg-white/95 backdrop-blur-xl py-4 lg:py-5 border-black/5 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)]' : 'bg-transparent py-6 lg:py-8 border-transparent'
         }`}
+        style={{
+          opacity: isIntroBright ? 1 : 0,
+          pointerEvents: isIntroBright ? 'auto' : 'none',
+          transform: isIntroBright ? 'translateY(0)' : 'translateY(-10px)'
+        }}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex justify-between items-center">
           <div className="flex flex-col justify-center relative z-20">
@@ -223,11 +242,17 @@ export default function Portfolio() {
       </motion.div>
 
       {/* Hero Section */}
-      <section id="beranda" className="relative min-h-[100vh] w-full flex flex-col justify-center overflow-hidden bg-neutral-50 border-b border-black/5">
+      <section 
+        id="beranda" 
+        className={`relative min-h-[100vh] w-full flex flex-col justify-center overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
+          isIntroBright ? 'bg-neutral-50' : 'bg-[#020202]'
+        }`}
+      >
         
         {/* Sleek Swiss-style editorial structure background graphic */}
         <div 
-          className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 opacity-[0.03] lg:opacity-[0.05] pointer-events-none select-none overflow-hidden flex items-center justify-center"
+          className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 opacity-[0.03] lg:opacity-[0.05] pointer-events-none select-none overflow-hidden flex items-center justify-center transition-all duration-[1000ms]"
+          style={{ opacity: isIntroBright ? undefined : 0 }}
         >
           {/* Subtle Grid Lines & Vertical Typography */}
           <div className="absolute inset-0 grid grid-cols-4 h-full w-full border-l border-black/5">
@@ -243,8 +268,12 @@ export default function Portfolio() {
 
         {/* Local Background Video - Sleek, Lag-free, Self-hosted */}
         <div 
-          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 transition-all duration-500 overflow-hidden bg-neutral-100 select-none pointer-events-none"
-          style={{ maskImage: 'linear-gradient(to right, transparent, black 45%)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 45%)' }}
+          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 transition-all duration-[1000ms] overflow-hidden bg-neutral-100 select-none pointer-events-none"
+          style={{ 
+            maskImage: 'linear-gradient(to right, transparent, black 45%)', 
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 45%)',
+            opacity: isIntroBright ? undefined : 0
+          }}
         >
           {isVideoMounted ? (
             <video
@@ -262,25 +291,99 @@ export default function Portfolio() {
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
-          <motion.div style={{ y: yHero }} className="relative">
+          <motion.div style={{ y: yHero }} className="relative z-[160]">
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col gap-4"
             >
-              <div className="flex items-center gap-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isIntroBright ? 1 : 0 }}
+                transition={{ duration: 0.8 }}
+                className="flex items-center gap-4"
+              >
                 <div className="h-[2px] w-8 md:w-12 bg-accent" />
                 <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">Student & Creator Portfolio</span>
-              </div>
+              </motion.div>
               
-              <h1 className="font-heading text-6xl sm:text-8xl lg:text-[7.5rem] font-black text-dark leading-[0.9] tracking-tight uppercase mt-4">
-                Seni <br />
-                <span className="text-neutral-200 hover:text-accent transition-colors duration-700 cursor-default">Adalah</span> <br />
-                Saya<span className="text-accent">.</span>
+              <h1 className="font-heading text-6xl sm:text-8xl lg:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
+                {/* Word 1: Seni */}
+                <div className="overflow-hidden py-4 -my-4">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 0 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 0 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright ? "text-dark" : "text-white"
+                    }`}
+                  >
+                    Seni
+                  </motion.span>
+                </div>
+
+                {/* Word 2: Adalah */}
+                <div className="overflow-hidden py-4 -my-4">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 1 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 1 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright 
+                        ? "text-neutral-200 hover:text-accent transition-colors duration-700" 
+                        : "text-white/20"
+                    }`}
+                  >
+                    Adalah
+                  </motion.span>
+                </div>
+
+                {/* Word 3: Saya. */}
+                <div className="overflow-hidden py-4 -my-4">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 2 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 2 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright ? "text-dark" : "text-white"
+                    }`}
+                  >
+                    Saya<motion.span 
+                      animate={{ color: isIntroBright ? "#8A5F41" : "#ffffff" }}
+                      className="transition-colors duration-1000"
+                    >.</motion.span>
+                  </motion.span>
+                </div>
               </h1>
 
-              <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between mt-12 gap-8 lg:gap-12 w-full">
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ 
+                  opacity: isIntroBright ? 1 : 0,
+                  y: isIntroBright ? 0 : 15 
+                }}
+                transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                className="flex flex-col lg:flex-row items-start lg:items-end justify-between mt-12 gap-8 lg:gap-12 w-full"
+              >
                 <p className="text-base md:text-lg lg:text-xl text-neutral-600 max-w-xl font-medium leading-relaxed">
                   Aghna Fatkhi — Pelajar SMA yang mendedikasikan waktu untuk directing, video editing, dan scripting. Menghubungkan ide melalui setiap potongan media.
                 </p>
@@ -292,7 +395,7 @@ export default function Portfolio() {
                     <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                   </a>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
@@ -665,109 +768,6 @@ export default function Portfolio() {
                 className="w-full h-full object-contain"
               />
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Swiss/Minimalist Typographic Opening Screen */}
-      <AnimatePresence mode="wait">
-        {showIntro && (
-          <motion.div
-            initial={{ opacity: 1, y: 0 }}
-            exit={{ 
-              y: "-100%",
-              transition: { duration: 0.85, ease: [0.76, 0, 0.24, 1] } 
-            }}
-            className="fixed inset-0 z-[200] bg-neutral-950 text-white flex flex-col justify-between p-6 sm:p-10 md:p-16 select-none overflow-hidden"
-          >
-            {/* Background Grid Lines to sync with structural layout */}
-            <div className="absolute inset-0 grid grid-cols-4 h-full w-full opacity-5 pointer-events-none">
-              <div className="border-r border-white h-full" />
-              <div className="border-r border-white h-full" />
-              <div className="border-r border-white h-full" />
-              <div className="h-full" />
-            </div>
-
-            {/* Top Bar Decoration */}
-            <div className="flex justify-between items-start w-full relative z-10 font-mono text-[9px] sm:text-xs tracking-[0.2em] text-neutral-500 uppercase">
-              <div className="flex flex-col gap-1">
-                <span>AGHNA FATKHI</span>
-                <span className="text-neutral-600">STUDENT & CREATOR // INDEX 2026</span>
-              </div>
-              <div className="text-right">
-                <span>[ STATUS: HEURISTIC_ACTIVE ]</span>
-              </div>
-            </div>
-
-            {/* Central Large Typographic Reveal */}
-            <div className="my-auto flex flex-col items-center justify-center relative z-10 w-full text-center">
-              <div className="overflow-hidden py-4 flex flex-wrap justify-center gap-x-2 md:gap-x-4">
-                {"AGHNA".split("").map((letter, index) => (
-                  <motion.span
-                    key={`ag-${index}`}
-                    initial={{ y: "115%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: index * 0.08,
-                      ease: [0.16, 1, 0.3, 1]
-                    }}
-                    className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight uppercase leading-none text-white block select-none"
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-                
-                <span className="w-4 sm:w-6 md:w-8" /> {/* Space */}
-                
-                {"FATKHI".split("").map((letter, index) => (
-                  <motion.span
-                    key={`fa-${index}`}
-                    initial={{ y: "115%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: (index + 5) * 0.08,
-                      ease: [0.16, 1, 0.3, 1]
-                    }}
-                    className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight uppercase leading-none text-white block select-none"
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-              </div>
-
-              {/* Minimal Line Loader underneath */}
-              <div className="w-full max-w-sm sm:max-w-md h-[2px] bg-neutral-900 rounded-full mt-4 overflow-hidden relative">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.1, ease: "easeOut" }}
-                  className="h-full bg-accent absolute left-0 top-0"
-                />
-              </div>
-
-              {/* Running metadata */}
-              <motion.span 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="font-mono text-[9px] sm:text-xs tracking-[0.3em] text-neutral-400 mt-6 uppercase"
-              >
-                CREATIVE DEVELOPER &bull; MULTIMEDIA PRODUCTIONS
-              </motion.span>
-            </div>
-
-            {/* Bottom Bar Indicator */}
-            <div className="flex justify-between items-end w-full relative z-10 font-mono text-[10px] sm:text-xs text-neutral-500 uppercase">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                <span className="tracking-widest">LOADING CORE_SYSTEM</span>
-              </div>
-              <div className="font-heading font-black tracking-widest text-lg sm:text-2xl text-accent">
-                {String(progress).padStart(3, '0')}%
-              </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
