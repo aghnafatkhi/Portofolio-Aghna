@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import Image from 'next/image';
 import { 
@@ -65,9 +65,12 @@ export default function Portfolio() {
   const { scrollY } = useScroll();
   const yHero = useTransform(scrollY, [0, 800], [0, -150]);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleBtnRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
-    // Lock body scroll during intro
-    if (showIntro) {
+    // Lock body scroll during intro or when mobile menu is open
+    if (showIntro || mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -75,7 +78,62 @@ export default function Portfolio() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [showIntro]);
+  }, [showIntro, mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    // Focus on the toggle button initially when open for accessibility
+    const toggleBtn = toggleBtnRef.current;
+    if (toggleBtn) {
+      toggleBtn.focus();
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const menuElement = menuRef.current;
+      const currentToggleBtn = toggleBtnRef.current;
+      if (!menuElement || !currentToggleBtn) return;
+
+      // Select all focusable links inside the mobile menu
+      const menuLinks = Array.from(menuElement.querySelectorAll<HTMLElement>('a[href]'));
+      
+      // Combine toggle button and menu links into the focus cycle
+      const focusableElements = [currentToggleBtn, ...menuLinks];
+
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      // Reset focus to the toggle button if tabbed out or focus is lost
+      if (!focusableElements.includes(document.activeElement as HTMLElement)) {
+        currentToggleBtn.focus();
+        e.preventDefault();
+        return;
+      }
+
+      if (e.shiftKey) {
+        // Shift + Tab: if on first element, wrap to last
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        // Tab: if on last element, wrap to first
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (!showIntro) return;
@@ -181,13 +239,8 @@ export default function Portfolio() {
                 mobileMenuOpen ? 'text-white' : 'text-dark'
               }`}
             >
-              AGHNA FATKHI<span className="text-accent underline decoration-2 md:decoration-4 underline-offset-4">.</span>
+              AGHNA FATKHI<span className="text-accent">.</span>
             </a>
-            <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.2em] mt-1 md:mt-2 uppercase transition-colors duration-300 ${
-              mobileMenuOpen ? 'text-white/60' : 'text-neutral-400'
-            }`}>
-              Student & Creator Portfolio
-            </span>
           </div>
           
           <div className="hidden lg:flex gap-12 items-center">
@@ -205,6 +258,7 @@ export default function Portfolio() {
           </div>
 
           <button 
+            ref={toggleBtnRef}
             className={`lg:hidden p-3 rounded-full transition-all duration-300 border ${
               mobileMenuOpen 
                 ? 'bg-white text-dark border-white shadow-lg' 
@@ -219,10 +273,11 @@ export default function Portfolio() {
 
       {/* Mobile Menu */}
       <motion.div 
+        ref={menuRef}
         initial={false}
         animate={{ y: mobileMenuOpen ? 0 : '-100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed inset-0 z-50 bg-dark pt-32 px-10 lg:hidden"
+        className="fixed inset-0 z-50 bg-dark/90 backdrop-blur-2xl pt-32 px-10 lg:hidden"
       >
         <div className="flex flex-col gap-8 text-left">
           {navLinks.map((link, idx) => (
