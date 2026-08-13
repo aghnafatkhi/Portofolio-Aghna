@@ -13,11 +13,31 @@ type Project = {
   id: number;
   title: string;
   tag: string;
+  category: 'graphics' | 'videography' | 'photography';
   img: string;
   desc: string;
   year: string;
   tools: string[];
 };
+
+const PROJECTS: Project[] = [
+  { id: 1, title: 'Banner IPM 17an', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/Jns9vpgz/Banner-17an.png', desc: 'Desain banner publikasi untuk perayaan HUT RI ke-78 yang diselenggarakan oleh Ikatan Pelajar Muhammadiyah.', year: '2023', tools: ['Canva'] },
+  { id: 2, title: 'Logo: Universe Origin', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/05MsBNRk/Logo-UNO.png', desc: 'Eksplorasi pembuatan identitas visual untuk brand lokal, memadukan elemen futuristik dan minimalis.', year: '2024', tools: ['Canva'] },
+  { id: 3, title: 'Banner Mapecap', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/nLRy3y3G/Banner-Mapecap.png', desc: 'Media promosi visual untuk kegiatan pengenalan lingkungan sekolah, dengan gaya dinamis dan muda.', year: '2023', tools: ['Canva'] },
+  { id: 4, title: 'Logo: Kampung Terapung', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/hvF3wcTx/Logo-Kampung-Terapung.png', desc: 'Perancangan logo komunitas wisata lokal untuk menarik minat pengunjung dengan pendekatan budaya.', year: '2024', tools: ['Canva'] },
+  { id: 5, title: 'Banner Upgrading', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/wMKbPgL3/Banner-Upgrading.png', desc: 'Desain visual untuk program pelatihan peningkatan kapasitas pengurus organisasi.', year: '2023', tools: ['Canva'] },
+  { id: 6, title: 'DOSQ Series Season 1', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/HnGPKdXk/Logo-Doras.png', desc: 'Identitas visual resmi untuk series perlombaan sekolah, menonjolkan kesan kompetitif dan kreatif.', year: '2023', tools: ['Canva'] },
+  { id: 7, title: 'Banner Classmeeting', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/fbR4jzfz/Banner-Classmeet.png', desc: 'Publikasi kegiatan Classmeeting pasca ujian, menggunakan warna cerah untuk membangun antusiasme.', year: '2022', tools: ['Canva'] },
+  { id: 8, title: 'DOSQ Series Season 2', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/SR0t5kCK/Logo-DORAS-2.png', desc: 'Evolusi identitas visual untuk musim kedua perlombaan sekolah dengan desain yang lebih berani dan solid.', year: '2024', tools: ['Canva'] },
+  { id: 9, title: 'Banner Natyasastra', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/KvPC6k9n/Banner-Natyasastra.png', desc: 'Media komunikasi visual untuk pementasan seni, memadukan unsur klasik sastra dengan tata letak modern.', year: '2023', tools: ['Canva'] },
+  { id: 10, title: 'Banner Natyasastra 2', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/hPLNkzCQ/Banner-Natyasastra-2.png', desc: 'Eksplorasi alternatif desain untuk kampanye publikasi acara seni.', year: '2023', tools: ['Canva'] },
+  { id: 11, title: 'Teaser Project: MPL SMAN 1 Cileungsi', tag: 'Videography / Event', category: 'videography', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1025', desc: 'Produksi video teaser sinematik untuk pembukaan MPL SMAN 1 Cileungsi dengan editing dinamis dan penceritaan kuat.', year: '2024', tools: ['DaVinci Resolve', 'Sony a6400'] },
+  { id: 12, title: 'Short Film: "Asa di Balik Lensa"', tag: 'Cinematic / Story', category: 'videography', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1171', desc: 'Sutradara dan editor utama dalam film pendek drama remaja bertema perjuangan memvisualisasikan mimpi.', year: '2024', tools: ['Resolve', 'CapCut', 'Storyboarding'] },
+  { id: 13, title: 'Documentation: Upgrading IPM', tag: 'Event / Promo', category: 'videography', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1159', desc: 'Dokumentasi sinematik berdurasi pendek untuk memperkuat value branding program upgrading organisasi.', year: '2023', tools: ['CapCut', 'DJI Osmo'] },
+  { id: 14, title: 'Street Photography: "Cileungsi Nocturne"', tag: 'Street Photography', category: 'photography', img: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=1156', desc: 'Eksplorasi kehidupan malam Bogor di sudut Cileungsi, menangkap paduan cahaya neon dan gerakan perkotaan.', year: '2024', tools: ['Sony a6400', 'Lightroom'] },
+  { id: 15, title: 'Portraiture: "Human & Expression"', tag: 'Portrait', category: 'photography', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1064', desc: 'Kumpulan foto potret emosional yang berfokus pada kejujuran ekspresi wajah dan interaksi manusia.', year: '2024', tools: ['Sony a6400', 'Lightroom'] },
+  { id: 16, title: 'Landscape Study: "Morning Mist"', tag: 'Landscape', category: 'photography', img: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1174', desc: 'Studi pemandangan kabut pagi di pinggiran Bogor dengan pendekatan estetika simetri alam yang menenangkan.', year: '2023', tools: ['Fujifilm X-T20'] },
+];
 
 interface OptimizedImageProps {
   src: string;
@@ -25,9 +45,10 @@ interface OptimizedImageProps {
   className?: string;
   fill?: boolean;
   priority?: boolean;
+  objectFit?: 'cover' | 'contain';
 }
 
-function OptimizedImage({ src, alt, className = '', fill = false, priority = false }: OptimizedImageProps) {
+function OptimizedImage({ src, alt, className = '', fill = false, priority = false, objectFit = 'cover' }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -43,7 +64,9 @@ function OptimizedImage({ src, alt, className = '', fill = false, priority = fal
         fill={fill}
         priority={priority}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className={`transition-all duration-700 ease-out object-contain ${
+        className={`transition-all duration-700 ease-out ${
+          objectFit === 'cover' ? 'object-cover' : 'object-contain'
+        } ${
           isLoading ? 'scale-[1.02] blur-sm opacity-0' : 'scale-100 blur-0 opacity-100'
         } ${className}`}
         onLoad={() => setIsLoading(false)}
@@ -57,6 +80,7 @@ export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography'>('all');
   const [showShowreel, setShowShowreel] = useState(false);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
@@ -214,6 +238,25 @@ export default function Portfolio() {
     transition: { duration: 0.6 }
   };
 
+  const staggerContainer = {
+    initial: {},
+    whileInView: {
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.05,
+      }
+    }
+  };
+
+  const staggerItem = {
+    initial: { opacity: 0, y: 35 },
+    whileInView: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }
+    }
+  };
+
   return (
     <div className={`bg-neutral-50 selection:bg-accent selection:text-white transition-colors duration-[1500ms] ${showIntro ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {/* Noise Texture */}
@@ -221,8 +264,12 @@ export default function Portfolio() {
 
       {/* Navigation */}
       <nav 
-        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-[1000ms] border-b ${
-          isScrolled ? 'bg-white/95 backdrop-blur-xl py-4 lg:py-5 border-black/5 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)]' : 'bg-transparent py-6 lg:py-8 border-transparent'
+        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-[300ms] border-b ${
+          mobileMenuOpen
+            ? 'bg-transparent border-transparent shadow-none py-4'
+            : isScrolled 
+              ? 'bg-white/95 backdrop-blur-xl py-3 lg:py-4 border-black/5 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)]' 
+              : 'max-lg:bg-white/95 max-lg:backdrop-blur-xl max-lg:border-black/5 max-lg:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.05)] bg-transparent py-4 lg:py-8 border-transparent'
         }`}
         style={{
           opacity: isIntroBright ? 1 : 0,
@@ -235,7 +282,7 @@ export default function Portfolio() {
             <a 
               href="#beranda" 
               onClick={handleAnchorClick} 
-              className={`font-heading text-2xl md:text-3xl font-black tracking-tighter leading-none transition-colors duration-300 ${
+              className={`font-heading text-xl sm:text-2xl md:text-3xl font-black tracking-tighter leading-none transition-colors duration-300 ${
                 mobileMenuOpen ? 'text-white' : 'text-dark'
               }`}
             >
@@ -259,10 +306,10 @@ export default function Portfolio() {
 
           <button 
             ref={toggleBtnRef}
-            className={`lg:hidden p-3 rounded-full transition-all duration-300 border ${
+            className={`lg:hidden p-3 rounded-full transition-all duration-300 border shadow-sm ${
               mobileMenuOpen 
-                ? 'bg-white text-dark border-white shadow-lg' 
-                : 'bg-dark text-white border-transparent'
+                ? 'bg-white text-dark border-white hover:bg-neutral-100' 
+                : 'bg-dark text-white border-transparent hover:bg-accent'
             }`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -277,7 +324,7 @@ export default function Portfolio() {
         initial={false}
         animate={{ y: mobileMenuOpen ? 0 : '-100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed inset-0 z-50 bg-dark/90 backdrop-blur-2xl pt-32 px-10 lg:hidden"
+        className="fixed inset-0 z-50 bg-dark/95 backdrop-blur-2xl pt-32 px-10 lg:hidden"
       >
         <div className="flex flex-col gap-8 text-left">
           {navLinks.map((link, idx) => (
@@ -287,7 +334,7 @@ export default function Portfolio() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: mobileMenuOpen ? 1 : 0, x: mobileMenuOpen ? 0 : -20 }}
               transition={{ delay: idx * 0.1 }}
-              className="text-5xl font-heading font-black text-white hover:text-accent"
+              className="text-4xl sm:text-5xl font-heading font-black text-white hover:text-accent transition-colors"
               onClick={handleAnchorClick}
             >
               {link.name}
@@ -299,7 +346,7 @@ export default function Portfolio() {
       {/* Hero Section */}
       <section 
         id="beranda" 
-        className={`relative min-h-[100vh] w-full flex flex-col justify-center overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
+        className={`relative min-h-[100vh] w-full flex flex-col justify-center pt-24 pb-12 lg:py-0 overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
           isIntroBright ? 'bg-neutral-50' : 'bg-[#020202]'
         }`}
       >
@@ -363,9 +410,9 @@ export default function Portfolio() {
                 <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">Student & Creator Portfolio</span>
               </motion.div>
               
-              <h1 className="font-heading text-6xl sm:text-8xl lg:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
+              <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-[6rem] xl:text-[6.8rem] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
                 {/* Word 1: Seni */}
-                <div className="overflow-hidden py-4 -my-4">
+                <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
                     initial={{ y: "115%", opacity: 0 }}
                     animate={{ 
@@ -385,7 +432,7 @@ export default function Portfolio() {
                 </div>
 
                 {/* Word 2: Adalah */}
-                <div className="overflow-hidden py-4 -my-4">
+                <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
                     initial={{ y: "115%", opacity: 0 }}
                     animate={{ 
@@ -398,7 +445,7 @@ export default function Portfolio() {
                     }}
                     className={`block select-none cursor-default transition-colors duration-1000 ${
                       isIntroBright 
-                        ? "text-neutral-200 hover:text-accent transition-colors duration-700" 
+                        ? "text-neutral-300 hover:text-accent transition-colors duration-700" 
                         : "text-white/20"
                     }`}
                   >
@@ -407,7 +454,7 @@ export default function Portfolio() {
                 </div>
 
                 {/* Word 3: Saya. */}
-                <div className="overflow-hidden py-4 -my-4">
+                <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
                     initial={{ y: "115%", opacity: 0 }}
                     animate={{ 
@@ -437,9 +484,9 @@ export default function Portfolio() {
                   y: isIntroBright ? 0 : 15 
                 }}
                 transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-                className="flex flex-col lg:flex-row items-start lg:items-end justify-between mt-12 gap-8 lg:gap-12 w-full"
+                className="flex flex-col lg:flex-row items-start lg:items-end justify-between mt-8 sm:mt-12 gap-6 lg:gap-10 w-full"
               >
-                <p className="text-base md:text-lg lg:text-xl text-neutral-600 max-w-xl font-medium leading-relaxed">
+                <p className="text-base md:text-lg text-neutral-600 max-w-xl font-medium leading-relaxed">
                   Aghna Fatkhi — Pelajar SMA yang mendedikasikan waktu untuk directing, video editing, dan scripting. Menghubungkan ide melalui setiap potongan media.
                 </p>
 
@@ -459,12 +506,15 @@ export default function Portfolio() {
 
       {/* Identity / About */}
       <section id="tentang" className="bg-dark py-24 md:py-32 px-6 md:px-8 lg:px-12 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-20 items-stretch">
-          <div className="lg:col-span-5 relative group">
-            <motion.div 
-              {...fadeUp}
-              className="aspect-[3/4] bg-neutral-900 border border-white/5 overflow-hidden filter grayscale hover:grayscale-0 transition-all duration-700 relative w-full"
-            >
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="whileInView"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-20 items-stretch"
+        >
+          <motion.div variants={staggerItem} className="lg:col-span-5 relative group">
+            <div className="aspect-[3/4] bg-neutral-900 border border-white/5 overflow-hidden filter grayscale hover:grayscale-0 transition-all duration-700 relative w-full">
               <div className="absolute inset-0 flex items-center justify-center opacity-20">
                 <Camera size={120} className="text-white" />
               </div>
@@ -473,12 +523,12 @@ export default function Portfolio() {
                   Integrasi seni peran <br /> dan teknologi <br /> visual modern.
                 </p>
               </div>
-            </motion.div>
+            </div>
             <div className="absolute -bottom-8 -right-8 w-48 h-48 bg-accent/20 blur-3xl rounded-full" />
-          </div>
+          </motion.div>
 
           <div className="lg:col-span-7 flex flex-col gap-12">
-            <motion.div {...fadeUp}>
+            <motion.div variants={staggerItem}>
               <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 md:mb-6 flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
                 Profil Profesional
@@ -488,7 +538,7 @@ export default function Portfolio() {
               </h3>
               <div className="text-neutral-400 space-y-6 text-sm md:text-base font-medium leading-[1.7] text-left max-w-xl">
                 <p>
-                  Sebagai seorang pelajar SMA Negeri 1 Cileungsi (2024-2027), saya fokus pada pengembangan diri melalui media produksi visual dan kepemimpinan. Perjalanan saya bermula dari ketertarikan pada bagaimana sebuah desain dan video dapat menyampaikan pesan yang mendalam kepada audiens.
+                  Sebagai seorang pelajar SMA Negeri 1 Cileungsi (2024-2027), saya focus pada pengembangan diri melalui media produksi visual dan kepemimpinan. Perjalanan saya bermula dari ketertarikan pada bagaimana sebuah desain dan video dapat menyampaikan pesan yang mendalam kepada audiens.
                 </p>
                 <p>
                   Lahir di Indramayu pada 10 November 2009, saya mengasah kemampuan manajerial dan kreatif melalui pengalaman berorganisasi, mulai dari menjadi Ketua Bidang PIP IPM SMP Muhammadiyah 1 Cileungsi, hingga menjabat sebagai Ketua Ekstrakurikuler Cinematography di SMA Negeri 1 Cileungsi.
@@ -507,7 +557,7 @@ export default function Portfolio() {
               </div>
             </motion.div>
 
-            <motion.div {...fadeUp} className="grid grid-cols-2 sm:grid-cols-3 gap-10 border-t border-white/10 pt-10">
+            <motion.div variants={staggerItem} className="grid grid-cols-2 sm:grid-cols-3 gap-10 border-t border-white/10 pt-10">
               {[
                 { val: '04', label: 'Tahun Dedikasi' },
                 { val: '10+', label: 'Proyek Kreatif' },
@@ -520,14 +570,20 @@ export default function Portfolio() {
               ))}
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Craft / Skills */}
       <section id="keahlian" className="py-24 md:py-32 px-6 md:px-8 lg:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
-          <div className="lg:w-1/3">
-            <motion.div {...fadeUp} className="sticky top-32">
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="whileInView"
+          viewport={{ once: true, margin: "-100px" }}
+          className="flex flex-col lg:flex-row gap-16 lg:gap-24"
+        >
+          <motion.div variants={staggerItem} className="lg:w-1/3">
+            <div className="sticky top-32">
               <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
                 Workflow
@@ -543,10 +599,13 @@ export default function Portfolio() {
                   <span key={tool} className="text-[9px] md:text-[10px] font-bold tracking-widest px-4 py-2 bg-neutral-100 text-dark uppercase">{tool}</span>
                 ))}
               </div>
-            </motion.div>
-          </div>
-
-          <div className="lg:w-2/3 grid gap-1 mt-16 lg:mt-0">
+            </div>
+          </motion.div>
+ 
+          <motion.div 
+            variants={staggerContainer}
+            className="lg:w-2/3 grid gap-1 mt-16 lg:mt-0"
+          >
             {[
               { id: '01', title: 'Editing & Directing', icon: <Clapperboard />, desc: 'Mengarahkan visi kreatif dan memoles potongan visual dengan DaVinci Resolve.', tags: ['Resolve', 'CapCut', 'Storytelling'] },
               { id: '02', title: 'Scripting & Ideasi', icon: <Music />, desc: 'Meracik ide cerita, struktur naskah, dan alur naratif yang kuat.', tags: ['Script', 'Concept', 'Research'] },
@@ -555,8 +614,8 @@ export default function Portfolio() {
             ].map((skill, idx) => (
               <motion.div 
                 key={idx} 
-                {...fadeUp}
-                className="group flex flex-col md:flex-row items-start md:items-center justify-between p-8 md:p-10 border-b border-black/5 hover:bg-dark transition-all duration-500 cursor-default"
+                variants={staggerItem}
+                className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:py-8 md:px-10 border-b border-black/5 hover:bg-dark transition-all duration-500 cursor-default"
               >
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 mb-6 md:mb-0">
                   <span className="text-sm font-black text-neutral-300 group-hover:text-accent transition-colors">{skill.id}</span>
@@ -572,14 +631,20 @@ export default function Portfolio() {
                 </div>
               </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Work Grid - Bento Style */}
       <section id="portofolio" className="py-24 md:py-32 bg-neutral-100/50">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
-          <motion.div {...fadeUp} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-20 gap-8">
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="whileInView"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12"
+        >
+          <motion.div variants={staggerItem} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-20 gap-8">
             <h3 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-dark leading-[0.9] tracking-tight uppercase whitespace-pre">
               SELECTED <br /> <span className="text-accent underline decoration-4 lg:decoration-6 underline-offset-4 lg:underline-offset-8">CRAFTS</span>.
             </h3>
@@ -588,75 +653,82 @@ export default function Portfolio() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          {/* Editorial Category Tab Filter */}
+          <div className="flex flex-wrap gap-x-8 gap-y-4 justify-start items-center border-b border-black/5 pb-8 mb-16 lg:mb-20">
             {[
-              { id: 1, title: 'Banner IPM 17an', tag: 'Visual Design', img: 'https://i.postimg.cc/Jns9vpgz/Banner-17an.png', desc: 'Desain banner publikasi untuk perayaan HUT RI ke-78 yang diselenggarakan oleh Ikatan Pelajar Muhammadiyah.', year: '2023', tools: ['Canva'] },
-              { id: 2, title: 'Logo: Universe Origin', tag: 'Branding', img: 'https://i.postimg.cc/05MsBNRk/Logo-UNO.png', desc: 'Eksplorasi pembuatan identitas visual untuk brand lokal, memadukan elemen futuristik dan minimalis.', year: '2024', tools: ['Canva'] },
-              { id: 3, title: 'Banner Mapecap', tag: 'Visual Design', img: 'https://i.postimg.cc/nLRy3y3G/Banner-Mapecap.png', desc: 'Media promosi visual untuk kegiatan pengenalan lingkungan sekolah, dengan gaya dinamis dan muda.', year: '2023', tools: ['Canva'] },
-              { id: 4, title: 'Logo: Kampung Terapung', tag: 'Branding', img: 'https://i.postimg.cc/hvF3wcTx/Logo-Kampung-Terapung.png', desc: 'Perancangan logo komunitas wisata lokal untuk menarik minat pengunjung dengan pendekatan budaya.', year: '2024', tools: ['Canva'] },
-              { id: 5, title: 'Banner Upgrading', tag: 'Visual Design', img: 'https://i.postimg.cc/wMKbPgL3/Banner-Upgrading.png', desc: 'Desain visual untuk program pelatihan peningkatan kapasitas pengurus organisasi.', year: '2023', tools: ['Canva'] },
-              { id: 6, title: 'DOSQ Series Season 1', tag: 'Branding', img: 'https://i.postimg.cc/HnGPKdXk/Logo-Doras.png', desc: 'Identitas visual resmi untuk series perlombaan sekolah, menonjolkan kesan kompetitif dan kreatif.', year: '2023', tools: ['Canva'] },
-              { id: 7, title: 'Banner Classmeeting', tag: 'Visual Design', img: 'https://i.postimg.cc/fbR4jzfz/Banner-Classmeet.png', desc: 'Publikasi kegiatan Classmeeting pasca ujian, menggunakan warna cerah untuk membangun antusiasme.', year: '2022', tools: ['Canva'] },
-              { id: 8, title: 'DOSQ Series Season 2', tag: 'Branding', img: 'https://i.postimg.cc/SR0t5kCK/Logo-DORAS-2.png', desc: 'Evolusi identitas visual untuk musim kedua perlombaan sekolah dengan desain yang lebih berani dan solid.', year: '2024', tools: ['Canva'] },
-              { id: 9, title: 'Banner Natyasastra', tag: 'Visual Design', img: 'https://i.postimg.cc/KvPC6k9n/Banner-Natyasastra.png', desc: 'Media komunikasi visual untuk pementasan seni, memadukan unsur klasik sastra dengan tata letak modern.', year: '2023', tools: ['Canva'] },
-              { id: 10, title: 'Banner Natyasastra 2', tag: 'Visual Design', img: 'https://i.postimg.cc/hPLNkzCQ/Banner-Natyasastra-2.png', desc: 'Eksplorasi alternatif desain untuk kampanye publikasi acara seni.', year: '2023', tools: ['Canva'] },
-            ].map((p, idx) => (
-              <motion.div 
-                key={idx} 
-                {...fadeUp} 
-                className="group flex flex-col gap-6 cursor-pointer"
-                onClick={() => setSelectedProject(p)}
-              >
-                <div className="relative w-full aspect-[16/10] overflow-hidden bg-white border border-black/5 flex items-center justify-center p-8 group-hover:border-accent/20 group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 ease-out">
-                  <div className="absolute top-5 left-5 flex gap-2 z-10 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 delay-75">
-                    <span className="bg-dark px-3 py-1.5 text-[9px] font-black tracking-[0.2em] uppercase text-white">
-                      {p.year}
-                    </span>
-                  </div>
-                  <OptimizedImage 
-                    src={p.img} 
-                    alt={p.title} 
-                    fill 
-                    priority={idx < 2}
-                    className="group-hover:scale-[1.04]" 
-                  />
-                  <div className="absolute inset-0 bg-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </div>
-                
-                <div className="flex flex-col gap-4 px-2">
-                  <div className="flex justify-between items-start gap-6">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">{p.tag}</span>
-                        <div className="h-[1px] w-4 bg-accent/30 group-hover:w-8 transition-all duration-500" />
-                      </div>
-                      <h4 className="font-heading text-xl md:text-3xl font-bold text-dark tracking-tight leading-tight group-hover:text-accent transition-colors duration-300">
-                        {p.title}
-                      </h4>
-                    </div>
-                    <div className="w-12 h-12 shrink-0 hidden sm:flex items-center justify-center bg-white border border-black/5 text-dark group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-all duration-500 shadow-sm rounded-none origin-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0">
-                      <ArrowUpRight size={22} strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  
-                  <p className="text-neutral-500 text-sm md:text-base leading-[1.7] line-clamp-2 md:max-w-[90%] font-medium">
-                    {p.desc}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 pt-6 border-t border-black/[0.05] mt-2">
-                    {p.tools.map((tool, i) => (
-                      <span key={i} className="text-[10px] font-bold tracking-[0.15em] text-neutral-400 uppercase flex items-center gap-2 group-hover:text-neutral-600 transition-colors">
-                        <span className="w-1 h-1 bg-neutral-300 rounded-full" />
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+              { id: 'all', name: 'ALL' },
+              { id: 'graphics', name: 'GRAPHICS DESIGN' },
+              { id: 'videography', name: 'VIDEOGRAPHY' },
+              { id: 'photography', name: 'PHOTOGRAPHY' },
+            ].map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id as any)}
+                  className="relative py-2 text-[11px] font-black tracking-[0.2em] transition-colors uppercase cursor-pointer text-left focus:outline-none"
+                >
+                  <span className={`${isActive ? 'text-accent' : 'text-neutral-400 hover:text-dark'} transition-colors duration-300`}>
+                    {cat.name}
+                  </span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeCategoryUnderline"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
+ 
+          <motion.div 
+            layout
+            variants={staggerContainer}
+            className="mx-[-24px] sm:mx-0 columns-1 sm:columns-2 lg:columns-3 gap-0 sm:gap-6 lg:gap-8 [column-fill:_balance]"
+          >
+            <AnimatePresence mode="popLayout">
+              {(activeCategory === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === activeCategory)).map((p, idx) => {
+                // Set custom aspect ratio based on project id and category to make a perfect Cosmos collage
+                let aspectClass = "aspect-[4/3]";
+                if (p.id === 2 || p.id === 4 || p.id === 6 || p.id === 8) {
+                  aspectClass = "aspect-square";
+                } else if (p.category === 'photography' && p.id !== 16) {
+                  aspectClass = "aspect-[3/4]";
+                } else if (p.category === 'videography' || p.id === 16) {
+                  aspectClass = "aspect-[16/10]";
+                } else if (p.id === 5) {
+                  aspectClass = "aspect-[21/9]";
+                }
+
+                return (
+                  <motion.div 
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    key={p.id} 
+                    className="break-inside-avoid mb-0 sm:mb-6 lg:mb-8 w-full relative overflow-hidden bg-white border-y border-black/5 sm:border border-black/5 flex items-center justify-center cursor-pointer group"
+                    onClick={() => setSelectedProject(p)}
+                  >
+                    <div className={`relative w-full ${aspectClass}`}>
+                      <OptimizedImage 
+                        src={p.img} 
+                        alt={p.title} 
+                        fill 
+                        priority={idx < 4}
+                        className="transition-transform duration-700 ease-out filter brightness-[0.98] group-hover:brightness-100" 
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
           
-          <motion.div {...fadeUp} className="mt-32 pt-16 border-t border-black/5">
+          <motion.div variants={staggerItem} className="mt-32 pt-16 border-t border-black/5">
             <h4 className="text-[10px] font-bold tracking-[0.3em] text-neutral-400 uppercase text-center mb-12">Trusted By / Endorsements</h4>
             <div className="flex flex-wrap justify-center gap-x-12 sm:gap-x-20 gap-y-10 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
               {['Skintific', 'Garnier', 'Jiera', 'The Face', 'Grace2Glow'].map(brand => (
@@ -664,24 +736,30 @@ export default function Portfolio() {
               ))}
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Contact Section - High Impact */}
       <section id="kontak" className="py-32 md:py-40 px-6 md:px-8 lg:px-12 bg-dark relative overflow-hidden">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.div {...fadeUp} className="flex flex-col items-center">
+        <motion.div 
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="whileInView"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-7xl mx-auto text-center"
+        >
+          <motion.div variants={staggerItem} className="flex flex-col items-center">
             <div className="flex items-center gap-4 mb-8 lg:mb-10">
               <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
               <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase">Let&apos;s talk</h2>
               <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
             </div>
-            <a href="mailto:aghna1011@gmail.com" className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-[7.5rem] font-black text-white leading-[0.9] tracking-tight uppercase hover:text-accent transition-colors duration-500 break-words max-w-full">
+            <a href="mailto:aghna1011@gmail.com" className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.8rem] 2xl:text-[7.5rem] font-black text-white leading-[0.9] tracking-tight uppercase hover:text-accent transition-colors duration-500 break-words max-w-full">
               GET IN TOUCH<span className="text-accent">.</span>
             </a>
           </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-10 mt-20 md:mt-28 text-left border-t border-white/10 pt-16">
+ 
+          <motion.div variants={staggerItem} className="grid md:grid-cols-3 gap-10 mt-20 md:mt-28 text-left border-t border-white/10 pt-16">
             <div>
               <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">Contact Details</span>
               <p className="text-white mt-4 font-bold text-lg md:text-xl">0858 6071 7548</p>
@@ -702,8 +780,8 @@ export default function Portfolio() {
                 </a>
               ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Footer / Copyright */}
@@ -752,6 +830,7 @@ export default function Portfolio() {
                   src={selectedProject.img} 
                   alt={selectedProject.title} 
                   fill
+                  objectFit="contain"
                   className="p-4"
                 />
               </div>
