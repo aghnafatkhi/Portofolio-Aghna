@@ -264,7 +264,7 @@ export default function Portfolio() {
 
       {/* Navigation */}
       <nav 
-        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-[300ms] border-b ${
+        className={`fixed top-0 left-0 right-0 z-[150] transition-all duration-[300ms] border-b ${
           mobileMenuOpen
             ? 'bg-transparent border-transparent shadow-none py-4'
             : isScrolled 
@@ -324,7 +324,7 @@ export default function Portfolio() {
         initial={false}
         animate={{ y: mobileMenuOpen ? 0 : '-100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed inset-0 z-50 bg-dark/95 backdrop-blur-2xl pt-32 px-10 lg:hidden"
+        className="fixed inset-0 z-[140] bg-dark/95 backdrop-blur-2xl pt-32 px-10 lg:hidden"
       >
         <div className="flex flex-col gap-8 text-left">
           {navLinks.map((link, idx) => (
@@ -393,7 +393,7 @@ export default function Portfolio() {
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
-          <motion.div style={{ y: yHero }} className="relative z-[160]">
+          <motion.div style={{ y: yHero }} className="relative z-[10]">
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -410,7 +410,7 @@ export default function Portfolio() {
                 <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">Student & Creator Portfolio</span>
               </motion.div>
               
-              <h1 className="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-[6rem] xl:text-[6.8rem] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
+              <h1 className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
                 {/* Word 1: Seni */}
                 <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
@@ -805,7 +805,7 @@ export default function Portfolio() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 md:p-12"
           >
             <div 
               className="absolute inset-0 bg-dark/80 backdrop-blur-sm cursor-pointer" 
@@ -874,7 +874,7 @@ export default function Portfolio() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 md:p-12"
           >
             <div 
               className="absolute inset-0 bg-dark/95 backdrop-blur-md cursor-pointer" 
