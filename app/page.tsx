@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { 
   Menu, X, Palette, Camera, Video,
   Instagram, Star, Clapperboard, Play,
-  ArrowRight, ArrowUpRight, Music
+  ArrowRight, ArrowLeft, ArrowUpRight, Music
 } from 'lucide-react';
 
 type Project = {
@@ -79,9 +79,10 @@ function OptimizedImage({ src, alt, className = '', fill = false, priority = fal
 export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography'>('graphics');
   const [hoveredProject, setHoveredProject] = useState<Project>(PROJECTS[0]);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
   const [showShowreel, setShowShowreel] = useState(false);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
@@ -229,6 +230,20 @@ export default function Portfolio() {
 
 
 
+  const activeProjects = activeCategory === 'all' 
+    ? PROJECTS 
+    : PROJECTS.filter(p => p.category === activeCategory);
+
+  const handlePrev = () => {
+    setSlideDirection(-1);
+    setCurrentSlideIndex((prev) => (prev === 0 ? activeProjects.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setSlideDirection(1);
+    setCurrentSlideIndex((prev) => (prev === activeProjects.length - 1 ? 0 : prev + 1));
+  };
+
   const navLinks = [
     { name: 'INDEX', href: '#beranda' },
     { name: 'ABOUT', href: '#tentang' },
@@ -269,6 +284,15 @@ export default function Portfolio() {
       opacity: 1, 
       y: 0,
       transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }
+    }
+  };
+
+  const headerFadeUp = {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }
     }
   };
 
@@ -334,41 +358,68 @@ export default function Portfolio() {
 
           <button 
             ref={toggleBtnRef}
-            className={`lg:hidden p-3 rounded-full transition-all duration-300 border shadow-sm ${
+            className={`lg:hidden p-3 rounded-full transition-all duration-300 border shadow-md flex items-center justify-center relative z-20 ${
               mobileMenuOpen 
-                ? 'bg-white text-dark border-white hover:bg-neutral-100' 
+                ? 'bg-accent text-white border-accent hover:bg-accent/90 scale-105' 
                 : 'bg-dark text-white border-transparent hover:bg-accent'
             }`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </nav>
-
+ 
       {/* Mobile Menu */}
       <motion.div 
         ref={menuRef}
         initial={false}
-        animate={{ y: mobileMenuOpen ? 0 : '-100%' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed inset-0 z-[140] bg-dark/95 backdrop-blur-2xl pt-32 px-10 lg:hidden"
+        animate={{ opacity: mobileMenuOpen ? 1 : 0, pointerEvents: mobileMenuOpen ? 'auto' : 'none' }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed inset-0 z-[140] bg-neutral-950/98 backdrop-blur-3xl flex flex-col justify-between pt-36 pb-12 px-8 sm:px-12 lg:hidden"
       >
-        <div className="flex flex-col gap-8 text-left">
+        {/* Navigation Links */}
+        <div className="flex flex-col gap-6 text-left my-auto">
           {navLinks.map((link, idx) => (
-            <motion.a 
-              key={link.name} 
-              href={link.href}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: mobileMenuOpen ? 1 : 0, x: mobileMenuOpen ? 0 : -20 }}
-              transition={{ delay: idx * 0.1 }}
-              className="text-4xl sm:text-5xl font-heading font-black text-white hover:text-accent transition-colors"
-              onClick={handleAnchorClick}
+            <motion.div
+              key={link.name}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: mobileMenuOpen ? 1 : 0, y: mobileMenuOpen ? 0 : 30 }}
+              transition={{ delay: idx * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="group"
             >
-              {link.name}
-            </motion.a>
+              <a 
+                href={link.href}
+                className="flex items-baseline gap-4 text-left font-heading text-4xl sm:text-5xl font-black text-white/90 hover:text-accent transition-colors duration-300"
+                onClick={handleAnchorClick}
+              >
+                <span className="font-mono text-xs sm:text-sm font-bold tracking-widest text-accent/60 group-hover:text-accent transition-colors">
+                  {String(idx + 1).padStart(2, '0')}.
+                </span>
+                <span className="tracking-tight uppercase">{link.name}</span>
+              </a>
+            </motion.div>
           ))}
         </div>
+
+        {/* Premium Mobile Menu Footer Info */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: mobileMenuOpen ? 1 : 0, y: mobileMenuOpen ? 0 : 15 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="border-t border-white/10 pt-8 mt-auto flex flex-col sm:flex-row gap-6 justify-between items-start text-left"
+        >
+          <div>
+            <span className="text-[9px] font-bold tracking-[0.2em] text-neutral-500 uppercase block mb-1">Get In Touch</span>
+            <a href="mailto:aghna1011@gmail.com" className="text-sm font-bold text-neutral-300 hover:text-accent transition-colors">
+              aghna1011@gmail.com
+            </a>
+          </div>
+          <div>
+            <span className="text-[9px] font-bold tracking-[0.2em] text-neutral-500 uppercase block mb-1">Current Base</span>
+            <span className="text-sm font-bold text-neutral-300 uppercase tracking-wider">INDONESIA / GMT+7</span>
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* Hero Section */}
@@ -438,7 +489,7 @@ export default function Portfolio() {
                 <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">Student & Creator Portfolio</span>
               </motion.div>
               
-              <h1 className="font-heading text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
+              <h1 className="font-heading text-6xl xs:text-7xl sm:text-7xl md:text-8xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
                 {/* Word 1: Seni */}
                 <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
@@ -533,7 +584,7 @@ export default function Portfolio() {
       </section>
 
       {/* Identity / About */}
-      <section id="tentang" className="bg-dark py-24 md:py-32 px-6 md:px-8 lg:px-12 relative overflow-hidden">
+      <section id="tentang" className="bg-dark py-14 md:py-28 px-6 md:px-8 lg:px-12 relative overflow-hidden">
         <motion.div 
           variants={staggerContainer}
           initial="initial"
@@ -556,15 +607,17 @@ export default function Portfolio() {
           </motion.div>
 
           <div className="lg:col-span-7 flex flex-col gap-12">
-            <motion.div variants={staggerItem}>
-              <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 md:mb-6 flex items-center gap-4">
-                <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
-                Profil Profesional
-              </h2>
-              <h3 className="font-heading text-3xl md:text-4xl lg:text-5xl text-white font-black leading-[1.1] tracking-tight uppercase mb-8 max-w-xl">
-                Dedikasi pada <br /> <span className="text-accent italic">Ekspresi Visual</span> & Narasi.
-              </h3>
-              <div className="text-neutral-400 space-y-6 text-sm md:text-base font-medium leading-[1.7] text-left max-w-xl">
+            <div className="flex flex-col gap-8">
+              <motion.div variants={headerFadeUp}>
+                <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 md:mb-6 flex items-center gap-4">
+                  <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
+                  Profil Profesional
+                </h2>
+                <h3 className="font-heading text-3xl md:text-4xl lg:text-5xl text-white font-black leading-[1.1] tracking-tight uppercase mb-6 max-w-xl">
+                  Dedikasi pada <br /> <span className="text-accent italic">Ekspresi Visual</span> & Narasi.
+                </h3>
+              </motion.div>
+              <motion.div variants={staggerItem} className="text-neutral-400 space-y-6 text-sm md:text-base font-medium leading-[1.7] text-left max-w-xl">
                 <p>
                   Sebagai seorang pelajar SMA Negeri 1 Cileungsi (2024-2027), saya focus pada pengembangan diri melalui media produksi visual dan kepemimpinan. Perjalanan saya bermula dari ketertarikan pada bagaimana sebuah desain dan video dapat menyampaikan pesan yang mendalam kepada audiens.
                 </p>
@@ -582,8 +635,8 @@ export default function Portfolio() {
                     <p className="text-neutral-400 text-sm leading-relaxed">Indonesia, Inggris, Jerman. <br/><span className="inline-block mt-1">Hobi: Menonton film & Bermain basket.</span></p>
                   </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
 
             <motion.div variants={staggerItem} className="grid grid-cols-3 gap-x-4 gap-y-6 sm:gap-10 border-t border-white/10 pt-10">
               {[
@@ -602,7 +655,7 @@ export default function Portfolio() {
       </section>
 
       {/* Craft / Skills */}
-      <section id="keahlian" className="py-24 md:py-32 px-6 md:px-8 lg:px-12 max-w-7xl mx-auto">
+      <section id="keahlian" className="py-14 md:py-28 px-6 md:px-8 lg:px-12 max-w-7xl mx-auto">
         <motion.div 
           variants={staggerContainer}
           initial="initial"
@@ -610,29 +663,31 @@ export default function Portfolio() {
           viewport={{ once: true, margin: "-100px" }}
           className="flex flex-col lg:flex-row gap-16 lg:gap-24"
         >
-          <motion.div variants={staggerItem} className="lg:w-1/3">
+          <div className="lg:w-1/3">
             <div className="sticky top-32">
-              <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 flex items-center gap-4">
-                <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
-                Workflow
-              </h2>
-              <h3 className="font-heading text-5xl lg:text-6xl font-black text-dark leading-[0.95] tracking-tighter uppercase mb-6">
-                Simpel <br />tapi <br />Niat<span className="text-accent">.</span>
-              </h3>
-              <p className="text-neutral-500 font-medium text-base md:text-lg leading-relaxed mb-8 max-w-sm">
+              <motion.div variants={headerFadeUp}>
+                <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-4 flex items-center gap-4">
+                  <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
+                  Workflow
+                </h2>
+                <h3 className="font-heading text-5xl lg:text-6xl font-black text-dark leading-[0.95] tracking-tighter uppercase mb-6">
+                  Simpel <br />tapi <br />Niat<span className="text-accent">.</span>
+                </h3>
+              </motion.div>
+              <motion.p variants={staggerItem} className="text-neutral-500 font-medium text-base md:text-lg leading-relaxed mb-8 max-w-sm">
                 Saya terbiasa memproses ide mulai dari riset referensi di internet, drafting di Canva, sampai eksekusi akhir di software profesional.
-              </p>
-              <div className="flex flex-wrap gap-3">
+              </motion.p>
+              <motion.div variants={staggerItem} className="flex flex-wrap gap-3">
                 {['CANVA', 'CAPCUT', 'DAVINCI'].map(tool => (
                   <span key={tool} className="text-[9px] md:text-[10px] font-bold tracking-widest px-4 py-2 bg-neutral-100 text-dark uppercase">{tool}</span>
                 ))}
-              </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
  
           <motion.div 
             variants={staggerContainer}
-            className="lg:w-2/3 grid gap-1 mt-16 lg:mt-0"
+            className="lg:w-2/3 grid gap-1 mt-8 lg:mt-0"
           >
             {[
               { id: '01', title: 'Editing & Directing', icon: <Clapperboard />, desc: 'Mengarahkan visi kreatif dan memoles potongan visual dengan DaVinci Resolve.', tags: ['Resolve', 'CapCut', 'Storytelling'] },
@@ -664,7 +719,7 @@ export default function Portfolio() {
       </section>
 
       {/* Editorial Exhibition Section (Opsi 1) */}
-      <section id="portofolio" className="py-24 md:py-32 bg-neutral-100/50">
+      <section id="portofolio" className="py-14 md:py-28 bg-neutral-100/50">
         <motion.div 
           variants={staggerContainer}
           initial="initial"
@@ -673,20 +728,19 @@ export default function Portfolio() {
           className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12"
         >
           {/* Header */}
-          <motion.div variants={staggerItem} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-20 gap-8">
-            <h3 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-dark leading-[0.9] tracking-tight uppercase whitespace-pre">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-20 gap-8">
+            <motion.h3 variants={headerFadeUp} className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-dark leading-[0.9] tracking-tight uppercase whitespace-pre">
               SELECTED <br /> <span className="text-accent underline decoration-4 lg:decoration-6 underline-offset-4 lg:underline-offset-8">CRAFTS</span>.
-            </h3>
-            <p className="text-neutral-500 md:text-right max-w-sm font-medium text-base md:text-lg leading-relaxed">
+            </motion.h3>
+            <motion.p variants={staggerItem} className="text-neutral-500 md:text-right max-w-sm font-medium text-base md:text-lg leading-relaxed">
               Kumpulan proyek eksperimen, komersial, maupun eksplorasi visual yang dikurasi secara presisi.
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
 
           {/* Editorial Category Tab Filter */}
-          <div className="flex flex-wrap gap-x-8 gap-y-4 justify-start items-center border-b border-black/5 pb-8 mb-12">
+          <div className="flex overflow-x-auto scrollbar-none -mx-6 px-6 lg:mx-0 lg:px-0 gap-x-5 lg:gap-x-8 justify-start items-center border-b border-black/5 pb-3 lg:pb-5 mb-8 lg:mb-12">
             {[
-              { id: 'all', name: 'ALL' },
-              { id: 'graphics', name: 'GRAPHICS DESIGN' },
+              { id: 'graphics', name: 'GRAPHICS' },
               { id: 'videography', name: 'VIDEOGRAPHY' },
               { id: 'photography', name: 'PHOTOGRAPHY' },
             ].map((cat) => {
@@ -697,6 +751,7 @@ export default function Portfolio() {
                   onClick={() => {
                     const nextCat = cat.id as any;
                     setActiveCategory(nextCat);
+                    setCurrentSlideIndex(0);
                     const filtered = nextCat === 'all' 
                       ? PROJECTS 
                       : PROJECTS.filter(p => p.category === nextCat);
@@ -704,7 +759,7 @@ export default function Portfolio() {
                       setHoveredProject(filtered[0]);
                     }
                   }}
-                  className="relative py-2 text-[11px] font-black tracking-[0.2em] transition-colors uppercase cursor-pointer text-left focus:outline-none"
+                  className="relative shrink-0 py-1.5 text-[10px] lg:text-[11px] font-black tracking-[0.15em] lg:tracking-[0.2em] transition-colors uppercase cursor-pointer text-left focus:outline-none"
                 >
                   <span className={`${isActive ? 'text-accent' : 'text-neutral-400 hover:text-dark'} transition-colors duration-300`}>
                     {cat.name}
@@ -721,154 +776,166 @@ export default function Portfolio() {
             })}
           </div>
 
-          {/* Split Screen Container */}
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
-            
-            {/* LEFT COLUMN: Sticky Exhibition Console */}
-            <div className="w-full lg:w-[45%] lg:sticky lg:top-32 flex flex-col justify-between min-h-[auto] lg:min-h-[60vh] border-b lg:border-b-0 pb-12 lg:pb-0 border-black/5 z-20">
-              <AnimatePresence mode="wait">
-                {hoveredProject && (
-                  <motion.div
-                    key={hoveredProject.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col"
-                  >
-                    {/* Index Pagination */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <span className="font-heading text-sm font-bold tracking-[0.3em] text-accent">
-                        {String(PROJECTS.findIndex(p => p.id === hoveredProject.id) + 1).padStart(2, '0')}
-                      </span>
-                      <div className="h-[1px] w-8 bg-accent/30" />
-                      <span className="font-heading text-sm font-bold tracking-[0.3em] text-neutral-400">
-                        {String(PROJECTS.length).padStart(2, '0')}
-                      </span>
-                    </div>
+          {/* Asymmetric Slidable Exhibition Card */}
+          <div className="relative">
+            {activeProjects.length > 0 && (() => {
+              const p = activeProjects[currentSlideIndex];
+              if (!p) return null;
+              
+              // We force a completely FIXED, ultra-stable outer frame aspect ratio to prevent ANY layout shifting or jumping!
+              const fixedAspectClass = "aspect-[16/10]";
+              
+              // We add elegant padding only for graphics or logos to make sure they sit beautifully inside the frame
+              let paddingClass = "";
+              if (p.category === 'graphics') {
+                const isLogo = p.title.toLowerCase().includes('logo');
+                paddingClass = isLogo ? "p-8 sm:p-12 md:p-16" : "p-4 sm:p-6 md:p-8";
+              }
 
-                    {/* Massive Title */}
-                    <h4 className="font-heading text-3xl sm:text-4xl lg:text-[3.25rem] font-black text-dark leading-[0.95] tracking-tighter uppercase mb-6 break-words">
-                      {hoveredProject.title}
-                    </h4>
-
-                    {/* Meta Grid */}
-                    <div className="grid grid-cols-2 gap-6 border-t border-b border-black/5 py-6 my-6">
-                      <div>
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-1">CATEGORY / ROLE</span>
-                        <span className="text-sm font-bold text-dark uppercase">{hoveredProject.tag}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-1">RELEASE YEAR</span>
-                        <span className="text-sm font-bold text-dark uppercase">{hoveredProject.year}</span>
-                      </div>
-                    </div>
-
-                    {/* Paragraph Description */}
-                    <p className="text-neutral-500 font-medium text-base leading-relaxed mb-8 max-w-md">
-                      {hoveredProject.desc}
-                    </p>
-
-                    {/* Tools Chips */}
-                    <div className="mb-10">
-                      <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-4">PRODUCTION TOOLKIT</span>
-                      <div className="flex flex-wrap gap-2">
-                        {hoveredProject.tools.map((tool, i) => (
-                          <span 
-                            key={i} 
-                            className="text-[10px] font-bold tracking-wider text-dark bg-neutral-100 px-3 py-1.5 uppercase border border-black/5"
-                          >
-                            {tool}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <div>
-                      <button
-                        onClick={() => setSelectedProject(hoveredProject)}
-                        className="group inline-flex items-center gap-4 bg-dark text-white px-8 py-4 text-xs font-black tracking-[0.25em] uppercase hover:bg-accent transition-colors duration-300 cursor-pointer"
-                      >
-                        EXPLORE PROJECT
-                        <ArrowRight size={16} className="transform group-hover:translate-x-2 transition-transform duration-300" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* RIGHT COLUMN: Scrolling Gallery Cards */}
-            <div className="w-full lg:w-[55%] flex flex-col gap-12 sm:gap-20">
-              <AnimatePresence mode="popLayout">
-                {(activeCategory === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === activeCategory)).map((p, idx) => {
-                  const isHoveredActive = hoveredProject?.id === p.id;
+              return (
+                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-start">
                   
-                  // Clean adaptive aspect ratios based on category
-                  let aspectClass = "aspect-[4/3]"; // graphics
-                  if (p.category === 'videography') {
-                    aspectClass = "aspect-[16/10]";
-                  } else if (p.category === 'photography') {
-                    aspectClass = "aspect-[4/5]";
-                  }
+                  {/* Left Column (Image Block with FIXED dots underneath) */}
+                  <div className="w-full lg:col-span-7 flex flex-col gap-4">
+                    
+                    {/* Image Area with FIXED Aspect Ratio to prevent layout shifting */}
+                    <div className={`relative w-full overflow-hidden border border-black/5 bg-neutral-50/50 ${fixedAspectClass}`}>
+                      <AnimatePresence mode="wait" initial={false} custom={slideDirection}>
+                        <motion.div 
+                          key={p.id}
+                          custom={slideDirection}
+                          initial={{ opacity: 0, x: slideDirection > 0 ? 80 : -80 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: slideDirection > 0 ? -80 : 80 }}
+                          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                          drag="x"
+                          dragConstraints={{ left: 0, right: 0 }}
+                          dragElastic={0.5}
+                          onDragEnd={(e, info) => {
+                            const swipe = info.offset.x;
+                            const swipeThreshold = 50;
+                            if (swipe < -swipeThreshold) {
+                              handleNext();
+                            } else if (swipe > swipeThreshold) {
+                              handlePrev();
+                            }
+                          }}
+                          className={`absolute inset-0 select-none touch-pan-y cursor-grab active:cursor-grabbing flex items-center justify-center ${paddingClass}`}
+                        >
+                          <OptimizedImage 
+                            src={p.img} 
+                            alt={p.title} 
+                            fill 
+                            priority
+                            objectFit={p.category === 'graphics' ? 'contain' : 'cover'}
+                            className="transition-transform duration-700 ease-out" 
+                          />
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                    
+                    {/* FIXED Bulir Bulir Proyek (Dots) & Arrow Controls under Image */}
+                    {activeProjects.length > 1 && (
+                      <div className="flex items-center justify-between mt-1 px-1 select-none">
+                        {/* Dots */}
+                        <div className="flex items-center gap-2">
+                          {activeProjects.map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setSlideDirection(i > currentSlideIndex ? 1 : -1);
+                                setCurrentSlideIndex(i);
+                              }}
+                              className={`h-2 transition-all duration-300 rounded-full focus:outline-none cursor-pointer ${
+                                i === currentSlideIndex 
+                                  ? 'w-7 bg-accent' 
+                                  : 'w-2 bg-neutral-300 hover:bg-neutral-400'
+                              }`}
+                              aria-label={`Go to slide ${i + 1}`}
+                            />
+                          ))}
+                        </div>
 
-                  return (
-                    <motion.div 
-                      layout
-                      initial={{ opacity: 0, y: 40 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-100px" }}
-                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                      key={p.id} 
-                      onMouseEnter={() => setHoveredProject(p)}
-                      onClick={() => setSelectedProject(p)}
-                      className={`w-full relative cursor-pointer group transition-all duration-500 ${
-                        isHoveredActive ? 'lg:opacity-100' : 'lg:opacity-40 hover:opacity-100'
-                      }`}
-                    >
-                      {/* Image Frame */}
-                      <div className={`relative w-full overflow-hidden border border-black/5 bg-white ${aspectClass}`}>
-                        <OptimizedImage 
-                          src={p.img} 
-                          alt={p.title} 
-                          fill 
-                          priority={idx < 2}
-                          className="transition-transform duration-700 ease-out group-hover:scale-[1.03]" 
-                        />
-                        
-                        {/* Hover Overlay Badge */}
-                        <div className="absolute inset-0 bg-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <span className="bg-white text-dark text-[10px] font-black tracking-[0.25em] uppercase px-5 py-3 border border-black/10 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                            VIEW CASE
+                        {/* Minimal Navigation Arrows with Fractional Counter */}
+                        <div className="flex items-center gap-4">
+                          <span className="font-mono text-[11px] font-bold text-neutral-400">
+                            <span className="text-dark font-black">{String(currentSlideIndex + 1).padStart(2, '0')}</span>
+                            <span className="mx-1">/</span>
+                            {String(activeProjects.length).padStart(2, '0')}
                           </span>
+                          
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={handlePrev}
+                              className="p-2 rounded-full border border-black/10 text-dark hover:bg-dark hover:text-white transition-colors duration-300 cursor-pointer focus:outline-none"
+                              aria-label="Previous Project"
+                            >
+                              <ArrowLeft size={13} />
+                            </button>
+                            <button
+                              onClick={handleNext}
+                              className="p-2 rounded-full border border-black/10 text-dark hover:bg-dark hover:text-white transition-colors duration-300 cursor-pointer focus:outline-none"
+                              aria-label="Next Project"
+                            >
+                              <ArrowRight size={13} />
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    )}
+                  </div>
 
-                      {/* Small Caption */}
-                      <div className="mt-4 flex justify-between items-start">
-                        <div>
-                          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-400 uppercase">
-                            {String(idx + 1).padStart(2, '0')}
-                          </span>
-                          <h5 className="font-heading text-lg font-black text-dark uppercase tracking-tight mt-1">
+                  {/* Right Column (Sliding Details Block) */}
+                  <div className="w-full lg:col-span-5 flex flex-col justify-center lg:pt-2 overflow-hidden">
+                    <div className="relative w-full min-h-[180px] xs:min-h-[160px] sm:min-h-[140px] lg:min-h-[auto]">
+                      <AnimatePresence mode="wait" initial={false} custom={slideDirection}>
+                        <motion.div 
+                          key={p.id}
+                          custom={slideDirection}
+                          initial={{ opacity: 0, x: slideDirection > 0 ? 30 : -30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: slideDirection > 0 ? -30 : 30 }}
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="flex flex-col justify-center"
+                        >
+                          {/* Serial Number & Category */}
+                          <div className="flex items-center gap-4 mb-4 sm:mb-6">
+                            <span className="font-heading text-xs sm:text-sm font-bold tracking-[0.3em] text-accent">
+                              {String(currentSlideIndex + 1).padStart(2, '0')}
+                            </span>
+                            <div className="h-[1px] w-8 bg-accent/30" />
+                            <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-neutral-400 uppercase">
+                              {p.tag}
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h4 className="font-heading text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-dark leading-[1.05] tracking-tight uppercase mb-4 sm:mb-6">
                             {p.title}
-                          </h5>
-                        </div>
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase border-b border-accent/20 pb-0.5 mt-2">
-                          {p.tag}
-                        </span>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
+                          </h4>
 
+                          {/* Release Year */}
+                          <div className="mb-4">
+                            <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-1">RELEASE YEAR</span>
+                            <span className="text-xs sm:text-sm font-bold text-dark uppercase">{p.year}</span>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-neutral-500 font-medium text-sm sm:text-base leading-relaxed mb-1 max-w-md">
+                            {p.desc}
+                          </p>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                </div>
+              );
+            })()}
           </div>
           
           {/* Brand Endorsements */}
-          <motion.div variants={staggerItem} className="mt-32 pt-16 border-t border-black/5">
+          <motion.div variants={staggerItem} className="mt-16 md:mt-24 pt-12 border-t border-black/5">
             <h4 className="text-[10px] font-bold tracking-[0.3em] text-neutral-400 uppercase text-center mb-12">Trusted By / Endorsements</h4>
             <div className="flex flex-wrap justify-center gap-x-12 sm:gap-x-20 gap-y-10 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
               {['Skintific', 'Garnier', 'Jiera', 'The Face', 'Grace2Glow'].map(brand => (
@@ -880,7 +947,7 @@ export default function Portfolio() {
       </section>
 
       {/* Contact Section - High Impact */}
-      <section id="kontak" className="py-32 md:py-40 px-6 md:px-8 lg:px-12 bg-dark relative overflow-hidden">
+      <section id="kontak" className="py-16 md:py-32 px-6 md:px-8 lg:px-12 bg-dark relative overflow-hidden">
         <motion.div 
           variants={staggerContainer}
           initial="initial"
@@ -888,18 +955,18 @@ export default function Portfolio() {
           viewport={{ once: true, margin: "-100px" }}
           className="max-w-7xl mx-auto text-center"
         >
-          <motion.div variants={staggerItem} className="flex flex-col items-center">
-            <div className="flex items-center gap-4 mb-8 lg:mb-10">
+          <div className="flex flex-col items-center">
+            <motion.div variants={headerFadeUp} className="flex items-center gap-4 mb-8 lg:mb-10">
               <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
               <h2 className="text-[10px] md:text-[11px] font-bold tracking-[0.3em] text-accent uppercase">Let&apos;s talk</h2>
               <span className="w-8 h-[1px] bg-accent/50 hidden md:block"></span>
-            </div>
-            <a href="mailto:aghna1011@gmail.com" className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.8rem] 2xl:text-[7.5rem] font-black text-white leading-[0.9] tracking-tight uppercase hover:text-accent transition-colors duration-500 break-words max-w-full">
+            </motion.div>
+            <motion.a variants={staggerItem} href="mailto:aghna1011@gmail.com" className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.8rem] 2xl:text-[7.5rem] font-black text-white leading-[0.9] tracking-tight uppercase hover:text-accent transition-colors duration-500 break-words max-w-full">
               GET IN TOUCH<span className="text-accent">.</span>
-            </a>
-          </motion.div>
+            </motion.a>
+          </div>
  
-          <motion.div variants={staggerItem} className="grid md:grid-cols-3 gap-10 mt-20 md:mt-28 text-left border-t border-white/10 pt-16">
+          <motion.div variants={staggerItem} className="grid md:grid-cols-3 gap-10 mt-12 md:mt-24 text-left border-t border-white/10 pt-12">
             <div>
               <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">Contact Details</span>
               <p className="text-white mt-4 font-bold text-lg md:text-xl">0858 6071 7548</p>
@@ -936,75 +1003,6 @@ export default function Portfolio() {
           </div>
         </div>
       </footer>
-
-      {/* Case Study Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 md:p-12"
-          >
-            <div 
-              className="absolute inset-0 bg-dark/80 backdrop-blur-sm cursor-pointer" 
-              onClick={() => setSelectedProject(null)}
-            />
-            <motion.div 
-              initial={{ y: 50, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 30, opacity: 0, scale: 0.95 }}
-              transition={{ delay: 0.1, type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto relative z-10 shadow-2xl flex flex-col md:flex-row"
-            >
-              <button 
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-20 w-10 h-10 bg-dark/10 hover:bg-dark text-dark hover:text-white rounded-full flex items-center justify-center transition-colors"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="w-full md:w-1/2 bg-neutral-100 flex items-center justify-center p-8 lg:p-12 border-b md:border-b-0 md:border-r border-black/5 relative min-h-[40vh] md:min-h-[50vh]">
-                <OptimizedImage 
-                  src={selectedProject.img} 
-                  alt={selectedProject.title} 
-                  fill
-                  objectFit="contain"
-                  className="p-4"
-                />
-              </div>
-
-              <div className="w-full md:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-accent uppercase">{selectedProject.tag}</span>
-                  <div className="h-[1px] w-6 bg-accent/30" />
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">{selectedProject.year}</span>
-                </div>
-                
-                <h3 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-dark tracking-tight leading-none mb-6">
-                  {selectedProject.title}
-                </h3>
-                
-                <p className="text-neutral-600 leading-relaxed md:text-lg mb-8 font-medium">
-                  {selectedProject.desc}
-                </p>
-
-                <div className="mt-auto pt-8 border-t border-black/5">
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-4">Software Used</span>
-                  <div className="flex flex-wrap gap-3">
-                    {selectedProject.tools.map((tool, i) => (
-                      <span key={i} className="text-[11px] font-bold tracking-[0.15em] text-dark bg-neutral-100 px-4 py-2 uppercase border border-black/5">
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Showreel Video Modal */}
       <AnimatePresence>
