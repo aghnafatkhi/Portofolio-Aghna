@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
 import Image from 'next/image';
 import { 
   Menu, X, Palette, Camera, Video,
@@ -81,13 +81,13 @@ export default function Portfolio() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography'>('all');
+  const [hoveredProject, setHoveredProject] = useState<Project>(PROJECTS[0]);
   const [showShowreel, setShowShowreel] = useState(false);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [activeWordIndex, setActiveWordIndex] = useState(-1);
   const [isIntroBright, setIsIntroBright] = useState(false);
-  const { scrollY } = useScroll();
-  const yHero = useTransform(scrollY, [0, 800], [0, -150]);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
@@ -199,9 +199,21 @@ export default function Portfolio() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress(window.scrollY / totalHeight);
+      } else {
+        setScrollProgress(0);
+      }
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -211,6 +223,9 @@ export default function Portfolio() {
     }, 800);
     return () => clearTimeout(timer);
   }, []);
+
+
+
 
 
 
@@ -261,6 +276,19 @@ export default function Portfolio() {
     <div className={`bg-neutral-50 selection:bg-accent selection:text-white transition-colors duration-[1500ms] ${showIntro ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {/* Noise Texture */}
       <div className="noise" />
+
+      {/* Slim Scroll Progress Bar */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-[3px] bg-accent z-[160] origin-left"
+        style={{ 
+          opacity: showIntro ? 0 : 1 
+        }}
+        animate={{ scaleX: scrollProgress }}
+        transition={{ 
+          scaleX: { type: 'spring', stiffness: 120, damping: 25, restDelta: 0.001 },
+          opacity: { duration: 0.5 }
+        }}
+      />
 
       {/* Navigation */}
       <nav 
@@ -346,7 +374,7 @@ export default function Portfolio() {
       {/* Hero Section */}
       <section 
         id="beranda" 
-        className={`relative min-h-[100vh] w-full flex flex-col justify-center pt-24 pb-12 lg:py-0 overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
+        className={`relative min-h-[100vh] w-full flex flex-col justify-center pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
           isIntroBright ? 'bg-neutral-50' : 'bg-[#020202]'
         }`}
       >
@@ -393,7 +421,7 @@ export default function Portfolio() {
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
-          <motion.div style={{ y: yHero }} className="relative z-[10]">
+          <motion.div className="relative z-[10]">
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -410,7 +438,7 @@ export default function Portfolio() {
                 <span className="text-[10px] md:text-[11px] font-bold tracking-[0.25em] text-accent uppercase">Student & Creator Portfolio</span>
               </motion.div>
               
-              <h1 className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
+              <h1 className="font-heading text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
                 {/* Word 1: Seni */}
                 <div className="overflow-hidden py-1.5 -my-1.5">
                   <motion.span
@@ -557,15 +585,15 @@ export default function Portfolio() {
               </div>
             </motion.div>
 
-            <motion.div variants={staggerItem} className="grid grid-cols-2 sm:grid-cols-3 gap-10 border-t border-white/10 pt-10">
+            <motion.div variants={staggerItem} className="grid grid-cols-3 gap-x-4 gap-y-6 sm:gap-10 border-t border-white/10 pt-10">
               {[
                 { val: '04', label: 'Tahun Dedikasi' },
                 { val: '10+', label: 'Proyek Kreatif' },
                 { val: '03', label: 'Core Software' },
               ].map((item, i) => (
                 <div key={i} className="flex flex-col">
-                  <span className="font-heading text-5xl md:text-6xl font-black text-white">{item.val}</span>
-                  <span className="text-[10px] md:text-xs font-bold tracking-[0.2em] text-neutral-500 uppercase mt-3">{item.label}</span>
+                  <span className="font-heading text-4xl xs:text-5xl md:text-6xl font-black text-white">{item.val}</span>
+                  <span className="text-[8px] xs:text-[10px] md:text-xs font-bold tracking-[0.1em] xs:tracking-[0.2em] text-neutral-500 uppercase mt-2 xs:mt-3 whitespace-nowrap">{item.label}</span>
                 </div>
               ))}
             </motion.div>
@@ -635,7 +663,7 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      {/* Work Grid - Bento Style */}
+      {/* Editorial Exhibition Section (Opsi 1) */}
       <section id="portofolio" className="py-24 md:py-32 bg-neutral-100/50">
         <motion.div 
           variants={staggerContainer}
@@ -644,17 +672,18 @@ export default function Portfolio() {
           viewport={{ once: true, margin: "-100px" }}
           className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12"
         >
+          {/* Header */}
           <motion.div variants={staggerItem} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 lg:mb-20 gap-8">
             <h3 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-dark leading-[0.9] tracking-tight uppercase whitespace-pre">
               SELECTED <br /> <span className="text-accent underline decoration-4 lg:decoration-6 underline-offset-4 lg:underline-offset-8">CRAFTS</span>.
             </h3>
             <p className="text-neutral-500 md:text-right max-w-sm font-medium text-base md:text-lg leading-relaxed">
-              Kumpulan proyek eksperimen, komersial, maupun eksplorasi visual yang pernah saya kerjakan.
+              Kumpulan proyek eksperimen, komersial, maupun eksplorasi visual yang dikurasi secara presisi.
             </p>
           </motion.div>
 
           {/* Editorial Category Tab Filter */}
-          <div className="flex flex-wrap gap-x-8 gap-y-4 justify-start items-center border-b border-black/5 pb-8 mb-16 lg:mb-20">
+          <div className="flex flex-wrap gap-x-8 gap-y-4 justify-start items-center border-b border-black/5 pb-8 mb-12">
             {[
               { id: 'all', name: 'ALL' },
               { id: 'graphics', name: 'GRAPHICS DESIGN' },
@@ -665,7 +694,16 @@ export default function Portfolio() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setActiveCategory(cat.id as any)}
+                  onClick={() => {
+                    const nextCat = cat.id as any;
+                    setActiveCategory(nextCat);
+                    const filtered = nextCat === 'all' 
+                      ? PROJECTS 
+                      : PROJECTS.filter(p => p.category === nextCat);
+                    if (filtered.length > 0) {
+                      setHoveredProject(filtered[0]);
+                    }
+                  }}
                   className="relative py-2 text-[11px] font-black tracking-[0.2em] transition-colors uppercase cursor-pointer text-left focus:outline-none"
                 >
                   <span className={`${isActive ? 'text-accent' : 'text-neutral-400 hover:text-dark'} transition-colors duration-300`}>
@@ -682,52 +720,154 @@ export default function Portfolio() {
               );
             })}
           </div>
- 
-          <motion.div 
-            layout
-            variants={staggerContainer}
-            className="mx-[-24px] sm:mx-0 columns-1 sm:columns-2 lg:columns-3 gap-0 sm:gap-6 lg:gap-8 [column-fill:_balance]"
-          >
-            <AnimatePresence mode="popLayout">
-              {(activeCategory === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === activeCategory)).map((p, idx) => {
-                // Set custom aspect ratio based on project id and category to make a perfect Cosmos collage
-                let aspectClass = "aspect-[4/3]";
-                if (p.id === 2 || p.id === 4 || p.id === 6 || p.id === 8) {
-                  aspectClass = "aspect-square";
-                } else if (p.category === 'photography' && p.id !== 16) {
-                  aspectClass = "aspect-[3/4]";
-                } else if (p.category === 'videography' || p.id === 16) {
-                  aspectClass = "aspect-[16/10]";
-                } else if (p.id === 5) {
-                  aspectClass = "aspect-[21/9]";
-                }
 
-                return (
-                  <motion.div 
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    key={p.id} 
-                    className="break-inside-avoid mb-0 sm:mb-6 lg:mb-8 w-full relative overflow-hidden bg-white border-y border-black/5 sm:border border-black/5 flex items-center justify-center cursor-pointer group"
-                    onClick={() => setSelectedProject(p)}
+          {/* Split Screen Container */}
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+            
+            {/* LEFT COLUMN: Sticky Exhibition Console */}
+            <div className="w-full lg:w-[45%] lg:sticky lg:top-32 flex flex-col justify-between min-h-[auto] lg:min-h-[60vh] border-b lg:border-b-0 pb-12 lg:pb-0 border-black/5 z-20">
+              <AnimatePresence mode="wait">
+                {hoveredProject && (
+                  <motion.div
+                    key={hoveredProject.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col"
                   >
-                    <div className={`relative w-full ${aspectClass}`}>
-                      <OptimizedImage 
-                        src={p.img} 
-                        alt={p.title} 
-                        fill 
-                        priority={idx < 4}
-                        className="transition-transform duration-700 ease-out filter brightness-[0.98] group-hover:brightness-100" 
-                      />
+                    {/* Index Pagination */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <span className="font-heading text-sm font-bold tracking-[0.3em] text-accent">
+                        {String(PROJECTS.findIndex(p => p.id === hoveredProject.id) + 1).padStart(2, '0')}
+                      </span>
+                      <div className="h-[1px] w-8 bg-accent/30" />
+                      <span className="font-heading text-sm font-bold tracking-[0.3em] text-neutral-400">
+                        {String(PROJECTS.length).padStart(2, '0')}
+                      </span>
+                    </div>
+
+                    {/* Massive Title */}
+                    <h4 className="font-heading text-3xl sm:text-4xl lg:text-[3.25rem] font-black text-dark leading-[0.95] tracking-tighter uppercase mb-6 break-words">
+                      {hoveredProject.title}
+                    </h4>
+
+                    {/* Meta Grid */}
+                    <div className="grid grid-cols-2 gap-6 border-t border-b border-black/5 py-6 my-6">
+                      <div>
+                        <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-1">CATEGORY / ROLE</span>
+                        <span className="text-sm font-bold text-dark uppercase">{hoveredProject.tag}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-1">RELEASE YEAR</span>
+                        <span className="text-sm font-bold text-dark uppercase">{hoveredProject.year}</span>
+                      </div>
+                    </div>
+
+                    {/* Paragraph Description */}
+                    <p className="text-neutral-500 font-medium text-base leading-relaxed mb-8 max-w-md">
+                      {hoveredProject.desc}
+                    </p>
+
+                    {/* Tools Chips */}
+                    <div className="mb-10">
+                      <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase block mb-4">PRODUCTION TOOLKIT</span>
+                      <div className="flex flex-wrap gap-2">
+                        {hoveredProject.tools.map((tool, i) => (
+                          <span 
+                            key={i} 
+                            className="text-[10px] font-bold tracking-wider text-dark bg-neutral-100 px-3 py-1.5 uppercase border border-black/5"
+                          >
+                            {tool}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div>
+                      <button
+                        onClick={() => setSelectedProject(hoveredProject)}
+                        className="group inline-flex items-center gap-4 bg-dark text-white px-8 py-4 text-xs font-black tracking-[0.25em] uppercase hover:bg-accent transition-colors duration-300 cursor-pointer"
+                      >
+                        EXPLORE PROJECT
+                        <ArrowRight size={16} className="transform group-hover:translate-x-2 transition-transform duration-300" />
+                      </button>
                     </div>
                   </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* RIGHT COLUMN: Scrolling Gallery Cards */}
+            <div className="w-full lg:w-[55%] flex flex-col gap-12 sm:gap-20">
+              <AnimatePresence mode="popLayout">
+                {(activeCategory === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === activeCategory)).map((p, idx) => {
+                  const isHoveredActive = hoveredProject?.id === p.id;
+                  
+                  // Clean adaptive aspect ratios based on category
+                  let aspectClass = "aspect-[4/3]"; // graphics
+                  if (p.category === 'videography') {
+                    aspectClass = "aspect-[16/10]";
+                  } else if (p.category === 'photography') {
+                    aspectClass = "aspect-[4/5]";
+                  }
+
+                  return (
+                    <motion.div 
+                      layout
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      key={p.id} 
+                      onMouseEnter={() => setHoveredProject(p)}
+                      onClick={() => setSelectedProject(p)}
+                      className={`w-full relative cursor-pointer group transition-all duration-500 ${
+                        isHoveredActive ? 'lg:opacity-100' : 'lg:opacity-40 hover:opacity-100'
+                      }`}
+                    >
+                      {/* Image Frame */}
+                      <div className={`relative w-full overflow-hidden border border-black/5 bg-white ${aspectClass}`}>
+                        <OptimizedImage 
+                          src={p.img} 
+                          alt={p.title} 
+                          fill 
+                          priority={idx < 2}
+                          className="transition-transform duration-700 ease-out group-hover:scale-[1.03]" 
+                        />
+                        
+                        {/* Hover Overlay Badge */}
+                        <div className="absolute inset-0 bg-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <span className="bg-white text-dark text-[10px] font-black tracking-[0.25em] uppercase px-5 py-3 border border-black/10 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            VIEW CASE
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Small Caption */}
+                      <div className="mt-4 flex justify-between items-start">
+                        <div>
+                          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-400 uppercase">
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <h5 className="font-heading text-lg font-black text-dark uppercase tracking-tight mt-1">
+                            {p.title}
+                          </h5>
+                        </div>
+                        <span className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase border-b border-accent/20 pb-0.5 mt-2">
+                          {p.tag}
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+
+          </div>
           
+          {/* Brand Endorsements */}
           <motion.div variants={staggerItem} className="mt-32 pt-16 border-t border-black/5">
             <h4 className="text-[10px] font-bold tracking-[0.3em] text-neutral-400 uppercase text-center mb-12">Trusted By / Endorsements</h4>
             <div className="flex flex-wrap justify-center gap-x-12 sm:gap-x-20 gap-y-10 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
