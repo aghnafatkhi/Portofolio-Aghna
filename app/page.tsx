@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { 
   Menu, X, Palette, Camera, Video,
   Instagram, Star, Clapperboard, Play,
-  ArrowRight, ArrowLeft, ArrowUpRight, Music
+  ArrowRight, ArrowLeft, ArrowUpRight, Music, Film
 } from 'lucide-react';
 
 type Project = {
@@ -89,6 +89,44 @@ export default function Portfolio() {
   const [activeWordIndex, setActiveWordIndex] = useState(-1);
   const [isIntroBright, setIsIntroBright] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Contact Form States
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [contactErrorMsg, setContactErrorMsg] = useState('');
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) {
+      setContactErrorMsg('All fields are required.');
+      setContactStatus('error');
+      return;
+    }
+
+    setContactStatus('sending');
+    setContactErrorMsg('');
+
+    try {
+      // Simulate sending via a mock email service with 1.5 seconds delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // Clear form on success
+      setContactName('');
+      setContactEmail('');
+      setContactMessage('');
+      setContactStatus('success');
+
+      // Auto-reset status back to idle after 5000ms
+      setTimeout(() => {
+        setContactStatus('idle');
+      }, 5000);
+    } catch (err) {
+      setContactStatus('error');
+      setContactErrorMsg('Failed to send message. Please try again.');
+    }
+  };
 
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
@@ -233,6 +271,26 @@ export default function Portfolio() {
   const activeProjects = activeCategory === 'all' 
     ? PROJECTS 
     : PROJECTS.filter(p => p.category === activeCategory);
+
+  // Pre-fetch next and previous project images to ensure seamless, instant transitions
+  useEffect(() => {
+    if (activeProjects.length > 1) {
+      const nextIndex = (currentSlideIndex + 1) % activeProjects.length;
+      const prevIndex = (currentSlideIndex - 1 + activeProjects.length) % activeProjects.length;
+      
+      const nextImgUrl = activeProjects[nextIndex]?.img;
+      const prevImgUrl = activeProjects[prevIndex]?.img;
+      
+      if (nextImgUrl) {
+        const nextImg = new window.Image();
+        nextImg.src = nextImgUrl;
+      }
+      if (prevImgUrl) {
+        const prevImg = new window.Image();
+        prevImg.src = prevImgUrl;
+      }
+    }
+  }, [currentSlideIndex, activeProjects]);
 
   const handlePrev = () => {
     setSlideDirection(-1);
@@ -795,6 +853,41 @@ export default function Portfolio() {
               return (
                 <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-start">
                   
+                  {/* Prefetch Next/Prev Images in background via Next.js <Image> with priority */}
+                  <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                    {activeProjects.length > 1 && (() => {
+                      const nextIndex = (currentSlideIndex + 1) % activeProjects.length;
+                      const prevIndex = (currentSlideIndex - 1 + activeProjects.length) % activeProjects.length;
+                      const nextProject = activeProjects[nextIndex];
+                      const prevProject = activeProjects[prevIndex];
+                      
+                      return (
+                        <>
+                          {nextProject && (
+                            <Image
+                              src={nextProject.img}
+                              alt=""
+                              fill
+                              priority
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              referrerPolicy="no-referrer"
+                            />
+                          )}
+                          {prevProject && (
+                            <Image
+                              src={prevProject.img}
+                              alt=""
+                              fill
+                              priority
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              referrerPolicy="no-referrer"
+                            />
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                  
                   {/* Left Column (Image Block with FIXED dots underneath) */}
                   <div className="w-full lg:col-span-7 flex flex-col gap-4">
                     
@@ -966,28 +1059,116 @@ export default function Portfolio() {
             </motion.a>
           </div>
  
-          <motion.div variants={staggerItem} className="grid md:grid-cols-3 gap-10 mt-12 md:mt-24 text-left border-t border-white/10 pt-12">
-            <div>
-              <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">Contact Details</span>
-              <p className="text-white mt-4 font-bold text-lg md:text-xl">0858 6071 7548</p>
-              <p className="text-neutral-400 mt-1 font-medium text-sm md:text-base">aghna1011@gmail.com</p>
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 mt-16 md:mt-24 text-left border-t border-white/10 pt-16">
+            {/* Left Column: Contact details & Socials */}
+            <div className="lg:col-span-5 flex flex-col justify-between gap-12">
+              <div className="space-y-10">
+                <motion.div variants={staggerItem} className="space-y-10">
+                  <div>
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase block mb-3">Contact Details</span>
+                    <p className="text-white font-heading text-2xl sm:text-3xl font-black tracking-tight">0858 6071 7548</p>
+                    <a href="mailto:aghna1011@gmail.com" className="text-neutral-400 hover:text-accent mt-2 font-medium text-base sm:text-lg block transition-colors duration-300">
+                      aghna1011@gmail.com
+                    </a>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase block mb-3">Location</span>
+                    <p className="text-white font-heading text-2xl sm:text-3xl font-black tracking-tight">Bogor, Indonesia</p>
+                    <p className="text-neutral-400 mt-1 font-medium text-sm md:text-base">Remote Work Available</p>
+                  </div>
+                </motion.div>
+              </div>
+
+              <motion.div variants={staggerItem} className="flex gap-4 items-center">
+                {[
+                  { i: <Instagram size={20} strokeWidth={2} />, l: 'https://instagram.com/aghnafatkhi', label: 'Instagram' },
+                  { i: <Video size={20} strokeWidth={2} />, l: 'https://tiktok.com/@aknaontt', label: 'TikTok' },
+                  { i: <Film size={20} strokeWidth={2} />, l: 'https://boxd.it/dkiEX', label: 'Letterboxd' }
+                ].map((s, i) => (
+                  <a key={i} href={s.l} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label} className="w-[52px] h-[52px] border border-white/20 flex items-center justify-center text-white hover:bg-accent hover:border-accent hover:text-dark transition-all duration-300">
+                    {s.i}
+                  </a>
+                ))}
+              </motion.div>
             </div>
-            <div>
-              <span className="text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">Location</span>
-              <p className="text-white mt-4 font-bold text-lg md:text-xl">Bogor, Indonesia</p>
-              <p className="text-neutral-400 mt-1 font-medium text-sm md:text-base">Remote Work Available</p>
+
+            {/* Right Column: Contact Form */}
+            <div className="lg:col-span-7">
+              <motion.div variants={staggerItem} className="bg-white/[0.02] border border-white/10 p-8 sm:p-10 rounded-2xl backdrop-blur-sm">
+                <h3 className="text-lg font-heading font-bold text-white uppercase tracking-wider mb-6">Send a Message</h3>
+                
+                <form onSubmit={handleContactSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label htmlFor="contact-name" className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">Your Name</label>
+                      <input
+                        id="contact-name"
+                        type="text"
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="John Doe"
+                        required
+                        className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-medium placeholder-neutral-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-300"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="contact-email" className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">Email Address</label>
+                      <input
+                        id="contact-email"
+                        type="email"
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="johndoe@example.com"
+                        required
+                        className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-medium placeholder-neutral-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="contact-message" className="text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase">Message</label>
+                    <textarea
+                      id="contact-message"
+                      rows={5}
+                      value={contactMessage}
+                      onChange={(e) => setContactMessage(e.target.value)}
+                      placeholder="Describe your project, ideas, or questions here..."
+                      required
+                      className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-medium placeholder-neutral-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-300 resize-none"
+                    />
+                  </div>
+
+                  {contactStatus === 'error' && (
+                    <div className="text-red-400 text-xs font-bold uppercase tracking-wider">
+                      {contactErrorMsg || "Something went wrong. Please check fields and try again."}
+                    </div>
+                  )}
+
+                  {contactStatus === 'success' && (
+                    <div className="text-accent text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-3 rounded-lg">
+                      <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                      Message sent successfully via mock email service!
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={contactStatus === 'sending'}
+                    className="w-full sm:w-auto bg-accent hover:bg-white text-dark font-heading font-black text-xs uppercase tracking-[0.2em] px-8 py-4 transition-colors duration-300 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {contactStatus === 'sending' ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-dark/20 border-t-dark rounded-full animate-spin" />
+                        SENDING...
+                      </>
+                    ) : (
+                      'SEND MESSAGE'
+                    )}
+                  </button>
+                </form>
+              </motion.div>
             </div>
-            <div className="flex gap-4 md:justify-end items-end pt-4 md:pt-0">
-              {[
-                { i: <Instagram size={20} strokeWidth={2} />, l: 'https://instagram.com/aghnafatkhi' },
-                { i: <Video size={20} strokeWidth={2} />, l: 'https://tiktok.com/@aknaontt' }
-              ].map((s, i) => (
-                <a key={i} href={s.l} target="_blank" rel="noopener noreferrer" className="w-[52px] h-[52px] border border-white/20 flex items-center justify-center text-white hover:bg-accent hover:border-accent transition-colors duration-300">
-                  {s.i}
-                </a>
-              ))}
-            </div>
-          </motion.div>
+          </div>
         </motion.div>
       </section>
 
