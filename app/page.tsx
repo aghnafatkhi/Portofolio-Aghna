@@ -96,11 +96,12 @@ export default function Portfolio() {
   const [contactMessage, setContactMessage] = useState('');
   const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [contactErrorMsg, setContactErrorMsg] = useState('');
+  const [contactSuccessMsg, setContactSuccessMsg] = useState('');
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) {
-      setContactErrorMsg('All fields are required.');
+      setContactErrorMsg('Semua kolom wajib diisi.');
       setContactStatus('error');
       return;
     }
@@ -109,22 +110,51 @@ export default function Portfolio() {
     setContactErrorMsg('');
 
     try {
-      // Simulate sending via a mock email service with 1.5 seconds delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: contactName.trim(),
+          email: contactEmail.trim(),
+          message: contactMessage.trim(),
+        }),
+        signal: controller.signal,
+      }).finally(() => {
+        clearTimeout(timeoutId);
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengirim pesan.');
+      }
+
       // Clear form on success
       setContactName('');
       setContactEmail('');
       setContactMessage('');
       setContactStatus('success');
+      setContactSuccessMsg(data.message || 'Pesan berhasil terkirim ke inbox aghna1011@gmail.com!');
 
-      // Auto-reset status back to idle after 5000ms
+      // Auto-reset status back to idle after 7000ms
       setTimeout(() => {
         setContactStatus('idle');
-      }, 5000);
-    } catch (err) {
+        setContactSuccessMsg('');
+      }, 7000);
+    } catch (err: unknown) {
       setContactStatus('error');
-      setContactErrorMsg('Failed to send message. Please try again.');
+      if (err instanceof Error) {
+        if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+          setContactErrorMsg('Waktu permintaan habis. Silakan periksa koneksi internet Anda dan coba lagi.');
+        } else {
+          setContactErrorMsg(err.message);
+        }
+      } else {
+        setContactErrorMsg('Gagal mengirim pesan. Silakan coba lagi.');
+      }
     }
   };
 
@@ -1082,8 +1112,8 @@ export default function Portfolio() {
               <motion.div variants={staggerItem} className="flex gap-4 items-center">
                 {[
                   { i: <Instagram size={20} strokeWidth={2} />, l: 'https://instagram.com/aghnafatkhi', label: 'Instagram' },
-                  { i: <Video size={20} strokeWidth={2} />, l: 'https://tiktok.com/@aknaontt', label: 'TikTok' },
-                  { i: <Film size={20} strokeWidth={2} />, l: 'https://boxd.it/dkiEX', label: 'Letterboxd' }
+                  { i: <Video size={20} strokeWidth={2} />, l: 'https://www.tiktok.com/@aghnaaontt', label: 'TikTok' },
+                  { i: <Film size={20} strokeWidth={2} />, l: 'https://boxd.it/dKiEX', label: 'Letterboxd' }
                 ].map((s, i) => (
                   <a key={i} href={s.l} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label} className="w-[52px] h-[52px] border border-white/20 flex items-center justify-center text-white hover:bg-accent hover:border-accent hover:text-dark transition-all duration-300">
                     {s.i}
@@ -1147,7 +1177,7 @@ export default function Portfolio() {
                   {contactStatus === 'success' && (
                     <div className="text-accent text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-3 rounded-lg">
                       <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                      Message sent successfully via mock email service!
+                      {contactSuccessMsg || "Pesan Anda berhasil dikirim langsung ke inbox aghna1011@gmail.com!"}
                     </div>
                   )}
 
