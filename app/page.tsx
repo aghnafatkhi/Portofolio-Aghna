@@ -6,38 +6,11 @@ import Image from 'next/image';
 import { 
   Menu, X, Palette, Camera, Video,
   Instagram, Star, Clapperboard, Play,
-  ArrowRight, ArrowLeft, ArrowUpRight, Music, Film
+  ArrowRight, ArrowLeft, ArrowUpRight, Music, Film, Github, Code, Globe, ExternalLink
 } from 'lucide-react';
-
-type Project = {
-  id: number;
-  title: string;
-  tag: string;
-  category: 'graphics' | 'videography' | 'photography';
-  img: string;
-  desc: string;
-  year: string;
-  tools: string[];
-};
-
-const PROJECTS: Project[] = [
-  { id: 1, title: 'Banner IPM 17an', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/Jns9vpgz/Banner-17an.png', desc: 'Desain banner publikasi untuk perayaan HUT RI ke-78 yang diselenggarakan oleh Ikatan Pelajar Muhammadiyah.', year: '2023', tools: ['Canva'] },
-  { id: 2, title: 'Logo: Universe Origin', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/05MsBNRk/Logo-UNO.png', desc: 'Eksplorasi pembuatan identitas visual untuk brand lokal, memadukan elemen futuristik dan minimalis.', year: '2024', tools: ['Canva'] },
-  { id: 3, title: 'Banner Mapecap', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/nLRy3y3G/Banner-Mapecap.png', desc: 'Media promosi visual untuk kegiatan pengenalan lingkungan sekolah, dengan gaya dinamis dan muda.', year: '2023', tools: ['Canva'] },
-  { id: 4, title: 'Logo: Kampung Terapung', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/hvF3wcTx/Logo-Kampung-Terapung.png', desc: 'Perancangan logo komunitas wisata lokal untuk menarik minat pengunjung dengan pendekatan budaya.', year: '2024', tools: ['Canva'] },
-  { id: 5, title: 'Banner Upgrading', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/wMKbPgL3/Banner-Upgrading.png', desc: 'Desain visual untuk program pelatihan peningkatan kapasitas pengurus organisasi.', year: '2023', tools: ['Canva'] },
-  { id: 6, title: 'DOSQ Series Season 1', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/HnGPKdXk/Logo-Doras.png', desc: 'Identitas visual resmi untuk series perlombaan sekolah, menonjolkan kesan kompetitif dan kreatif.', year: '2023', tools: ['Canva'] },
-  { id: 7, title: 'Banner Classmeeting', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/fbR4jzfz/Banner-Classmeet.png', desc: 'Publikasi kegiatan Classmeeting pasca ujian, menggunakan warna cerah untuk membangun antusiasme.', year: '2022', tools: ['Canva'] },
-  { id: 8, title: 'DOSQ Series Season 2', tag: 'Branding', category: 'graphics', img: 'https://i.postimg.cc/SR0t5kCK/Logo-DORAS-2.png', desc: 'Evolusi identitas visual untuk musim kedua perlombaan sekolah dengan desain yang lebih berani dan solid.', year: '2024', tools: ['Canva'] },
-  { id: 9, title: 'Banner Natyasastra', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/KvPC6k9n/Banner-Natyasastra.png', desc: 'Media komunikasi visual untuk pementasan seni, memadukan unsur klasik sastra dengan tata letak modern.', year: '2023', tools: ['Canva'] },
-  { id: 10, title: 'Banner Natyasastra 2', tag: 'Visual Design', category: 'graphics', img: 'https://i.postimg.cc/hPLNkzCQ/Banner-Natyasastra-2.png', desc: 'Eksplorasi alternatif desain untuk kampanye publikasi acara seni.', year: '2023', tools: ['Canva'] },
-  { id: 11, title: 'Teaser Project: MPL SMAN 1 Cileungsi', tag: 'Videography / Event', category: 'videography', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1025', desc: 'Produksi video teaser sinematik untuk pembukaan MPL SMAN 1 Cileungsi dengan editing dinamis dan penceritaan kuat.', year: '2024', tools: ['DaVinci Resolve', 'Sony a6400'] },
-  { id: 12, title: 'Short Film: "Asa di Balik Lensa"', tag: 'Cinematic / Story', category: 'videography', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1171', desc: 'Sutradara dan editor utama dalam film pendek drama remaja bertema perjuangan memvisualisasikan mimpi.', year: '2024', tools: ['Resolve', 'CapCut', 'Storyboarding'] },
-  { id: 13, title: 'Documentation: Upgrading IPM', tag: 'Event / Promo', category: 'videography', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1159', desc: 'Dokumentasi sinematik berdurasi pendek untuk memperkuat value branding program upgrading organisasi.', year: '2023', tools: ['CapCut', 'DJI Osmo'] },
-  { id: 14, title: 'Street Photography: "Cileungsi Nocturne"', tag: 'Street Photography', category: 'photography', img: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=1156', desc: 'Eksplorasi kehidupan malam Bogor di sudut Cileungsi, menangkap paduan cahaya neon dan gerakan perkotaan.', year: '2024', tools: ['Sony a6400', 'Lightroom'] },
-  { id: 15, title: 'Portraiture: "Human & Expression"', tag: 'Portrait', category: 'photography', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1064', desc: 'Kumpulan foto potret emosional yang berfokus pada kejujuran ekspresi wajah dan interaksi manusia.', year: '2024', tools: ['Sony a6400', 'Lightroom'] },
-  { id: 16, title: 'Landscape Study: "Morning Mist"', tag: 'Landscape', category: 'photography', img: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1174', desc: 'Studi pemandangan kabut pagi di pinggiran Bogor dengan pendekatan estetika simetri alam yang menenangkan.', year: '2023', tools: ['Fujifilm X-T20'] },
-];
+import { 
+  Project, INITIAL_PROJECTS, useCraftsStore 
+} from '@/lib/crafts';
 
 interface OptimizedImageProps {
   src: string;
@@ -50,16 +23,19 @@ interface OptimizedImageProps {
 
 function OptimizedImage({ src, alt, className = '', fill = false, priority = false, objectFit = 'cover' }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const displaySrc = hasError ? 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200' : src;
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-neutral-100">
+    <div key={src} className="relative w-full h-full overflow-hidden bg-neutral-100">
       {isLoading && (
         <div className="absolute inset-0 bg-neutral-100 animate-pulse z-10 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-black/10 border-t-accent rounded-full animate-spin" />
         </div>
       )}
       <Image
-        src={src}
+        src={displaySrc}
         alt={alt}
         fill={fill}
         priority={priority}
@@ -70,6 +46,10 @@ function OptimizedImage({ src, alt, className = '', fill = false, priority = fal
           isLoading ? 'scale-[1.02] blur-sm opacity-0' : 'scale-100 blur-0 opacity-100'
         } ${className}`}
         onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setIsLoading(false);
+          setHasError(true);
+        }}
         referrerPolicy="no-referrer"
       />
     </div>
@@ -77,10 +57,11 @@ function OptimizedImage({ src, alt, className = '', fill = false, priority = fal
 }
 
 export default function Portfolio() {
+  const projects = useCraftsStore();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography'>('graphics');
-  const [hoveredProject, setHoveredProject] = useState<Project>(PROJECTS[0]);
+  const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography' | 'web'>('graphics');
+  const [hoveredProject, setHoveredProject] = useState<Project>(INITIAL_PROJECTS[0]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
   const [showShowreel, setShowShowreel] = useState(false);
@@ -299,8 +280,8 @@ export default function Portfolio() {
 
 
   const activeProjects = activeCategory === 'all' 
-    ? PROJECTS 
-    : PROJECTS.filter(p => p.category === activeCategory);
+    ? projects 
+    : projects.filter(p => p.category === activeCategory);
 
   // Pre-fetch next and previous project images to ensure seamless, instant transitions
   useEffect(() => {
@@ -766,7 +747,7 @@ export default function Portfolio() {
                 Saya terbiasa memproses ide mulai dari riset referensi di internet, drafting di Canva, sampai eksekusi akhir di software profesional.
               </motion.p>
               <motion.div variants={staggerItem} className="flex flex-wrap gap-3">
-                {['CANVA', 'CAPCUT', 'DAVINCI'].map(tool => (
+                {['CANVA', 'CAPCUT', 'DAVINCI', 'NEXT.JS', 'TAILWIND'].map(tool => (
                   <span key={tool} className="text-[9px] md:text-[10px] font-bold tracking-widest px-4 py-2 bg-neutral-100 text-dark uppercase">{tool}</span>
                 ))}
               </motion.div>
@@ -782,6 +763,7 @@ export default function Portfolio() {
               { id: '02', title: 'Scripting & Ideasi', icon: <Music />, desc: 'Meracik ide cerita, struktur naskah, dan alur naratif yang kuat.', tags: ['Script', 'Concept', 'Research'] },
               { id: '03', title: 'Desain Grafis', icon: <Palette />, desc: 'Menciptakan bahasa visual yang komunikatif dengan Canva.', tags: ['Canva', 'Branding', 'Typography'] },
               { id: '04', title: 'Publikasi & Dokumentasi', icon: <Camera />, desc: 'Menghindari gaya statis. Publikasi acara, mengabadikan momen dengan estetika.', tags: ['Event', 'Social Media', 'Photo'] },
+              { id: '05', title: 'Web & UI Craft', icon: <Code />, desc: 'Membangun antarmuka web modern, responsif, dan interaktif dengan Next.js & Tailwind.', tags: ['Next.js', 'React', 'Tailwind', 'TypeScript'] },
             ].map((skill, idx) => (
               <motion.div 
                 key={idx} 
@@ -831,6 +813,7 @@ export default function Portfolio() {
               { id: 'graphics', name: 'GRAPHICS' },
               { id: 'videography', name: 'VIDEOGRAPHY' },
               { id: 'photography', name: 'PHOTOGRAPHY' },
+              { id: 'web', name: 'WEB / DEV' },
             ].map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
@@ -841,8 +824,8 @@ export default function Portfolio() {
                     setActiveCategory(nextCat);
                     setCurrentSlideIndex(0);
                     const filtered = nextCat === 'all' 
-                      ? PROJECTS 
-                      : PROJECTS.filter(p => p.category === nextCat);
+                      ? projects 
+                      : projects.filter(p => p.category === nextCat);
                     if (filtered.length > 0) {
                       setHoveredProject(filtered[0]);
                     }
@@ -1044,9 +1027,24 @@ export default function Portfolio() {
                           </div>
 
                           {/* Description */}
-                          <p className="text-neutral-500 font-medium text-sm sm:text-base leading-relaxed mb-1 max-w-md">
+                          <p className="text-neutral-500 font-medium text-sm sm:text-base leading-relaxed mb-6 max-w-md">
                             {p.desc}
                           </p>
+
+                          {/* Project Link */}
+                          {p.link && (
+                            <div>
+                              <a
+                                href={p.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] text-accent hover:text-dark uppercase transition-colors group"
+                              >
+                                <span>Lihat Project</span>
+                                <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                              </a>
+                            </div>
+                          )}
                         </motion.div>
                       </AnimatePresence>
                     </div>
@@ -1055,6 +1053,12 @@ export default function Portfolio() {
                 </div>
               );
             })()}
+
+            {activeProjects.length === 0 && (
+              <div className="py-16 text-center border border-black/5 bg-white p-8 rounded-xl">
+                <p className="text-sm font-medium text-neutral-400">Belum ada karya untuk kategori ini.</p>
+              </div>
+            )}
           </div>
           
           {/* Brand Endorsements */}
@@ -1111,6 +1115,7 @@ export default function Portfolio() {
 
               <motion.div variants={staggerItem} className="flex gap-4 items-center">
                 {[
+                  { i: <Github size={20} strokeWidth={2} />, l: 'https://github.com/aghnafatkhi', label: 'GitHub' },
                   { i: <Instagram size={20} strokeWidth={2} />, l: 'https://instagram.com/aghnafatkhi', label: 'Instagram' },
                   { i: <Video size={20} strokeWidth={2} />, l: 'https://www.tiktok.com/@aghnaaontt', label: 'TikTok' },
                   { i: <Film size={20} strokeWidth={2} />, l: 'https://boxd.it/dKiEX', label: 'Letterboxd' }

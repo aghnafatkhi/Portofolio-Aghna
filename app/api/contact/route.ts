@@ -28,11 +28,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Forward to FormSubmit endpoint directed to aghna1011@gmail.com with timeout
+    // Forward to FormSubmit endpoint directed to aghna1011@gmail.com with safe timeout handling
     const targetEmail = 'aghna1011@gmail.com';
     
     try {
-      // 4-second timeout to prevent serverless function hangs and timeout errors
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
       const response = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
         method: 'POST',
         headers: {
@@ -47,17 +49,19 @@ export async function POST(req: NextRequest) {
           _template: 'table',
           _captcha: 'false',
         }),
-        signal: AbortSignal.timeout(4000),
-      });
+        signal: controller.signal,
+      }).catch(() => null);
 
-      if (response.ok) {
+      clearTimeout(timeoutId);
+
+      if (response && response.ok) {
         return NextResponse.json({
           success: true,
           message: 'Pesan Anda berhasil dikirim langsung ke inbox aghna1011@gmail.com!',
         });
       }
     } catch {
-      // In case of timeout or network limitation, gracefully accept message
+      // In case of timeout or network limitation, fallback gracefully
     }
 
     // Fallback confirmation
