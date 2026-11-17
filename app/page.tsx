@@ -1,31 +1,29 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import { 
   Menu, X, Palette, Camera, Video,
-  Instagram, Star, Clapperboard, Play,
-  ArrowRight, ArrowLeft, ArrowUpRight, Music, Film, Github, Code, Globe, ExternalLink
+  Instagram, Clapperboard,
+  ArrowRight, ArrowLeft, ArrowUpRight, Music, Film, Github, Code
 } from 'lucide-react';
-import { 
-  Project, INITIAL_PROJECTS, useCraftsStore 
-} from '@/lib/crafts';
+import { useCraftsStore } from '@/lib/crafts';
+import { isOptimizableImage } from '@/lib/utils';
 
 interface OptimizedImageProps {
   src: string;
   alt: string;
   className?: string;
   fill?: boolean;
-  priority?: boolean;
   objectFit?: 'cover' | 'contain';
 }
 
-function OptimizedImage({ src, alt, className = '', fill = false, priority = false, objectFit = 'cover' }: OptimizedImageProps) {
+function OptimizedImage({ src, alt, className = '', fill = false, objectFit = 'cover' }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const displaySrc = hasError ? 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200' : src;
+  const displaySrc = hasError ? '/crafts/portfolio-website.webp' : src;
 
   return (
     <div key={src} className="relative w-full h-full overflow-hidden bg-neutral-100">
@@ -38,8 +36,8 @@ function OptimizedImage({ src, alt, className = '', fill = false, priority = fal
         src={displaySrc}
         alt={alt}
         fill={fill}
-        priority={priority}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        unoptimized={!isOptimizableImage(displaySrc)}
+        sizes="(max-width: 1024px) 100vw, 58vw"
         className={`transition-all duration-700 ease-out ${
           objectFit === 'cover' ? 'object-cover' : 'object-contain'
         } ${
@@ -61,10 +59,8 @@ export default function Portfolio() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography' | 'web'>('graphics');
-  const [hoveredProject, setHoveredProject] = useState<Project>(INITIAL_PROJECTS[0]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
-  const [showShowreel, setShowShowreel] = useState(false);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [activeWordIndex, setActiveWordIndex] = useState(-1);
@@ -92,7 +88,7 @@ export default function Portfolio() {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -164,6 +160,11 @@ export default function Portfolio() {
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+        return;
+      }
+
       if (e.key !== 'Tab') return;
 
       const menuElement = menuRef.current;
@@ -247,6 +248,42 @@ export default function Portfolio() {
   }, [showIntro]);
 
   useEffect(() => {
+    const skip = () => {
+      setActiveWordIndex(2);
+      setIsIntroBright(true);
+      setShowIntro(false);
+    };
+
+    try {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const seen = sessionStorage.getItem('aghna_intro_seen') === '1';
+      if (reduceMotion || seen) {
+        const timer = setTimeout(skip, 0);
+        return () => clearTimeout(timer);
+      }
+      sessionStorage.setItem('aghna_intro_seen', '1');
+    } catch {
+      // storage can be unavailable in private browsing
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showIntro) return;
+
+    const skipIntro = () => {
+      setIsIntroBright(true);
+      setShowIntro(false);
+    };
+
+    window.addEventListener('pointerdown', skipIntro);
+    window.addEventListener('keydown', skipIntro);
+    return () => {
+      window.removeEventListener('pointerdown', skipIntro);
+      window.removeEventListener('keydown', skipIntro);
+    };
+  }, [showIntro]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
@@ -279,38 +316,33 @@ export default function Portfolio() {
 
 
 
-  const activeProjects = activeCategory === 'all' 
-    ? projects 
-    : projects.filter(p => p.category === activeCategory);
+  const activeProjects = useMemo(
+    () =>
+      activeCategory === 'all'
+        ? projects
+        : projects.filter((p) => p.category === activeCategory),
+    [activeCategory, projects]
+  );
 
-  // Pre-fetch next and previous project images to ensure seamless, instant transitions
-  useEffect(() => {
-    if (activeProjects.length > 1) {
-      const nextIndex = (currentSlideIndex + 1) % activeProjects.length;
-      const prevIndex = (currentSlideIndex - 1 + activeProjects.length) % activeProjects.length;
-      
-      const nextImgUrl = activeProjects[nextIndex]?.img;
-      const prevImgUrl = activeProjects[prevIndex]?.img;
-      
-      if (nextImgUrl) {
-        const nextImg = new window.Image();
-        nextImg.src = nextImgUrl;
-      }
-      if (prevImgUrl) {
-        const prevImg = new window.Image();
-        prevImg.src = prevImgUrl;
-      }
-    }
-  }, [currentSlideIndex, activeProjects]);
+  const slideIndex =
+    activeProjects.length > 0
+      ? Math.min(currentSlideIndex, activeProjects.length - 1)
+      : 0;
 
   const handlePrev = () => {
     setSlideDirection(-1);
-    setCurrentSlideIndex((prev) => (prev === 0 ? activeProjects.length - 1 : prev - 1));
+    setCurrentSlideIndex((prev) => {
+      const index = Math.min(prev, activeProjects.length - 1);
+      return index <= 0 ? activeProjects.length - 1 : index - 1;
+    });
   };
 
   const handleNext = () => {
     setSlideDirection(1);
-    setCurrentSlideIndex((prev) => (prev === activeProjects.length - 1 ? 0 : prev + 1));
+    setCurrentSlideIndex((prev) => {
+      const index = Math.min(prev, activeProjects.length - 1);
+      return index === activeProjects.length - 1 ? 0 : index + 1;
+    });
   };
 
   const navLinks = [
@@ -433,6 +465,9 @@ export default function Portfolio() {
                 : 'bg-dark text-white border-transparent hover:bg-accent'
             }`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -442,6 +477,11 @@ export default function Portfolio() {
       {/* Mobile Menu */}
       <motion.div 
         ref={menuRef}
+        id="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!mobileMenuOpen}
+        inert={!mobileMenuOpen}
         initial={false}
         animate={{ opacity: mobileMenuOpen ? 1 : 0, pointerEvents: mobileMenuOpen ? 'auto' : 'none' }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -528,11 +568,13 @@ export default function Portfolio() {
           {isVideoMounted ? (
             <video
               src="/showreel.mp4"
+              poster="/showreel-poster.jpg"
               autoPlay
               loop
               muted
               playsInline
               preload="metadata"
+              aria-hidden="true"
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover grayscale brightness-95 opacity-80"
             />
           ) : (
@@ -541,7 +583,10 @@ export default function Portfolio() {
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
-          <motion.div className="relative z-[10]">
+          <motion.div
+            className="relative z-[10]"
+            style={{ pointerEvents: isIntroBright ? 'auto' : 'none' }}
+          >
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -809,26 +854,19 @@ export default function Portfolio() {
 
           {/* Editorial Category Tab Filter */}
           <div className="flex overflow-x-auto scrollbar-none -mx-6 px-6 lg:mx-0 lg:px-0 gap-x-5 lg:gap-x-8 justify-start items-center border-b border-black/5 pb-3 lg:pb-5 mb-8 lg:mb-12">
-            {[
+            {([
               { id: 'graphics', name: 'GRAPHICS' },
               { id: 'videography', name: 'VIDEOGRAPHY' },
               { id: 'photography', name: 'PHOTOGRAPHY' },
               { id: 'web', name: 'WEB / DEV' },
-            ].map((cat) => {
+            ] as const).map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
                 <button
                   key={cat.id}
                   onClick={() => {
-                    const nextCat = cat.id as any;
-                    setActiveCategory(nextCat);
+                    setActiveCategory(cat.id);
                     setCurrentSlideIndex(0);
-                    const filtered = nextCat === 'all' 
-                      ? projects 
-                      : projects.filter(p => p.category === nextCat);
-                    if (filtered.length > 0) {
-                      setHoveredProject(filtered[0]);
-                    }
                   }}
                   className="relative shrink-0 py-1.5 text-[10px] lg:text-[11px] font-black tracking-[0.15em] lg:tracking-[0.2em] transition-colors uppercase cursor-pointer text-left focus:outline-none"
                 >
@@ -850,7 +888,7 @@ export default function Portfolio() {
           {/* Asymmetric Slidable Exhibition Card */}
           <div className="relative">
             {activeProjects.length > 0 && (() => {
-              const p = activeProjects[currentSlideIndex];
+              const p = activeProjects[slideIndex];
               if (!p) return null;
               
               // We force a completely FIXED, ultra-stable outer frame aspect ratio to prevent ANY layout shifting or jumping!
@@ -865,41 +903,6 @@ export default function Portfolio() {
 
               return (
                 <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-start">
-                  
-                  {/* Prefetch Next/Prev Images in background via Next.js <Image> with priority */}
-                  <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
-                    {activeProjects.length > 1 && (() => {
-                      const nextIndex = (currentSlideIndex + 1) % activeProjects.length;
-                      const prevIndex = (currentSlideIndex - 1 + activeProjects.length) % activeProjects.length;
-                      const nextProject = activeProjects[nextIndex];
-                      const prevProject = activeProjects[prevIndex];
-                      
-                      return (
-                        <>
-                          {nextProject && (
-                            <Image
-                              src={nextProject.img}
-                              alt=""
-                              fill
-                              priority
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              referrerPolicy="no-referrer"
-                            />
-                          )}
-                          {prevProject && (
-                            <Image
-                              src={prevProject.img}
-                              alt=""
-                              fill
-                              priority
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              referrerPolicy="no-referrer"
-                            />
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
                   
                   {/* Left Column (Image Block with FIXED dots underneath) */}
                   <div className="w-full lg:col-span-7 flex flex-col gap-4">
@@ -932,7 +935,6 @@ export default function Portfolio() {
                             src={p.img} 
                             alt={p.title} 
                             fill 
-                            priority
                             objectFit={p.category === 'graphics' ? 'contain' : 'cover'}
                             className="transition-transform duration-700 ease-out" 
                           />
@@ -949,11 +951,11 @@ export default function Portfolio() {
                             <button
                               key={i}
                               onClick={() => {
-                                setSlideDirection(i > currentSlideIndex ? 1 : -1);
+                                setSlideDirection(i > slideIndex ? 1 : -1);
                                 setCurrentSlideIndex(i);
                               }}
                               className={`h-2 transition-all duration-300 rounded-full focus:outline-none cursor-pointer ${
-                                i === currentSlideIndex 
+                                i === slideIndex 
                                   ? 'w-7 bg-accent' 
                                   : 'w-2 bg-neutral-300 hover:bg-neutral-400'
                               }`}
@@ -965,7 +967,7 @@ export default function Portfolio() {
                         {/* Minimal Navigation Arrows with Fractional Counter */}
                         <div className="flex items-center gap-4">
                           <span className="font-mono text-[11px] font-bold text-neutral-400">
-                            <span className="text-dark font-black">{String(currentSlideIndex + 1).padStart(2, '0')}</span>
+                            <span className="text-dark font-black">{String(slideIndex + 1).padStart(2, '0')}</span>
                             <span className="mx-1">/</span>
                             {String(activeProjects.length).padStart(2, '0')}
                           </span>
@@ -1007,7 +1009,7 @@ export default function Portfolio() {
                           {/* Serial Number & Category */}
                           <div className="flex items-center gap-4 mb-4 sm:mb-6">
                             <span className="font-heading text-xs sm:text-sm font-bold tracking-[0.3em] text-accent">
-                              {String(currentSlideIndex + 1).padStart(2, '0')}
+                              {String(slideIndex + 1).padStart(2, '0')}
                             </span>
                             <div className="h-[1px] w-8 bg-accent/30" />
                             <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-neutral-400 uppercase">
@@ -1174,13 +1176,13 @@ export default function Portfolio() {
                   </div>
 
                   {contactStatus === 'error' && (
-                    <div className="text-red-400 text-xs font-bold uppercase tracking-wider">
+                    <div role="alert" className="text-red-400 text-xs font-bold uppercase tracking-wider">
                       {contactErrorMsg || "Something went wrong. Please check fields and try again."}
                     </div>
                   )}
 
                   {contactStatus === 'success' && (
-                    <div className="text-accent text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-3 rounded-lg">
+                    <div role="status" aria-live="polite" className="text-accent text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-3 rounded-lg">
                       <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
                       {contactSuccessMsg || "Pesan Anda berhasil dikirim langsung ke inbox aghna1011@gmail.com!"}
                     </div>
@@ -1219,46 +1221,6 @@ export default function Portfolio() {
           </div>
         </div>
       </footer>
-
-      {/* Showreel Video Modal */}
-      <AnimatePresence>
-        {showShowreel && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 md:p-12"
-          >
-            <div 
-              className="absolute inset-0 bg-dark/95 backdrop-blur-md cursor-pointer" 
-              onClick={() => setShowShowreel(false)}
-            />
-            <motion.div 
-              initial={{ y: 50, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 30, opacity: 0, scale: 0.95 }}
-              transition={{ delay: 0.1, type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full max-w-5xl aspect-video relative z-10 shadow-2xl bg-black rounded-sm overflow-hidden border border-white/10"
-            >
-              <button 
-                onClick={() => setShowShowreel(false)}
-                className="absolute top-4 right-4 z-20 w-12 h-12 bg-black/50 hover:bg-black text-white hover:text-accent rounded-full flex items-center justify-center transition-colors border border-white/20 cursor-pointer"
-              >
-                <X size={24} />
-              </button>
-              
-              <video 
-                src="/showreel.mp4" 
-                autoPlay
-                controls
-                playsInline
-                className="w-full h-full object-contain"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
     </div>
   );

@@ -3,9 +3,16 @@
 @theme {
   --color-accent: #8A5F41;
   --color-dark: #0a0a0a;
+  --breakpoint-xs: 30rem;
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
+  body {
+    /* Defined here so it can resolve the font variable Next.js sets on <body>. */
+    --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  }
+
   html {
     scroll-behavior: smooth;
     cursor: default;
@@ -36,5 +43,13 @@
 
   .mask-fade {
     mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

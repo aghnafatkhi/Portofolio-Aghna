@@ -9,7 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-heading',
+  variable: '--font-space-grotesk',
 });
 
 export const metadata: Metadata = {

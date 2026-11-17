@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { 
   Project, ProjectCategory, useCraftsStore, 
-  saveStoredCrafts, resetStoredCrafts 
+  saveStoredCrafts, resetStoredCrafts, isValidProjectList
 } from '@/lib/crafts';
 import ImageCropperModal from '@/components/ImageCropperModal';
 
@@ -205,7 +205,10 @@ export default function AdminCraftsPage() {
         }
         return c;
       });
-      saveStoredCrafts(updated);
+      if (!saveStoredCrafts(updated)) {
+        alert('Gagal menyimpan. Penyimpanan browser penuh atau diblokir.');
+        return;
+      }
       showToast(`Craft "${formData.title}" berhasil diperbarui!`);
     } else {
       // Add new
@@ -221,7 +224,10 @@ export default function AdminCraftsPage() {
         link: formData.link.trim() || undefined
       };
       const updated = [newCraft, ...crafts];
-      saveStoredCrafts(updated);
+      if (!saveStoredCrafts(updated)) {
+        alert('Gagal menyimpan. Penyimpanan browser penuh atau diblokir.');
+        return;
+      }
       showToast(`Craft baru "${formData.title}" berhasil ditambahkan!`);
     }
 
@@ -231,7 +237,10 @@ export default function AdminCraftsPage() {
   const handleDelete = (id: number) => {
     const target = crafts.find(c => c.id === id);
     const updated = crafts.filter(c => c.id !== id);
-    saveStoredCrafts(updated);
+    if (!saveStoredCrafts(updated)) {
+      alert('Gagal menghapus. Penyimpanan browser penuh atau diblokir.');
+      return;
+    }
     setDeleteConfirmId(null);
     showToast(`Craft "${target?.title || 'Proyek'}" telah dihapus.`);
   };
@@ -260,9 +269,12 @@ export default function AdminCraftsPage() {
       fileReader.onload = (event) => {
         try {
           const parsed = JSON.parse(event.target?.result as string);
-          if (Array.isArray(parsed)) {
-            saveStoredCrafts(parsed);
-            showToast('Data crafts berhasil diimpor dari file JSON!');
+          if (isValidProjectList(parsed)) {
+            if (saveStoredCrafts(parsed)) {
+              showToast('Data crafts berhasil diimpor dari file JSON!');
+            } else {
+              alert('Gagal menyimpan hasil impor. Penyimpanan browser penuh.');
+            }
           } else {
             alert('Format file JSON tidak valid.');
           }
@@ -438,7 +450,7 @@ export default function AdminCraftsPage() {
             ].map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setFilterCategory(cat.id as any)}
+                onClick={() => setFilterCategory(cat.id as 'all' | ProjectCategory)}
                 className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors uppercase tracking-wider ${
                   filterCategory === cat.id 
                     ? 'bg-[#ff3b00] text-white' 
@@ -514,12 +526,13 @@ export default function AdminCraftsPage() {
                     src={craft.img}
                     alt={craft.title}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       // Fallback image if broken
-                      (e.target as any).src = 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200';
+                      (e.target as any).src = '/crafts/portfolio-website.webp';
                     }}
                   />
                   <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
@@ -785,10 +798,11 @@ export default function AdminCraftsPage() {
                             src={formData.img}
                             alt="Pratinjau Thumbnail"
                             fill
+                            unoptimized
                             className="object-cover"
                             referrerPolicy="no-referrer"
                             onError={(e) => {
-                              (e.target as any).src = 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200';
+                              (e.target as any).src = '/crafts/portfolio-website.webp';
                             }}
                           />
                           <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
@@ -849,10 +863,11 @@ export default function AdminCraftsPage() {
                               src={formData.img} 
                               alt="Preview" 
                               fill 
+                              unoptimized
                               className="object-cover" 
                               referrerPolicy="no-referrer"
                               onError={(e) => {
-                                (e.target as any).src = 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200';
+                                (e.target as any).src = '/crafts/portfolio-website.webp';
                               }}
                             />
                           </div>
