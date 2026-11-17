@@ -8,7 +8,7 @@ import {
   Instagram, Clapperboard,
   ArrowRight, ArrowLeft, ArrowUpRight, Music, Film, Github, Code
 } from 'lucide-react';
-import { useCraftsStore } from '@/lib/crafts';
+import { INITIAL_PROJECTS } from '@/lib/crafts';
 import { isOptimizableImage } from '@/lib/utils';
 
 interface OptimizedImageProps {
@@ -55,7 +55,7 @@ function OptimizedImage({ src, alt, className = '', fill = false, objectFit = 'c
 }
 
 export default function Portfolio() {
-  const projects = useCraftsStore();
+  const projects = INITIAL_PROJECTS;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'graphics' | 'videography' | 'photography' | 'web'>('graphics');
