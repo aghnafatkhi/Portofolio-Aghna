@@ -225,23 +225,14 @@ export default function Portfolio() {
   }, [showIntro]);
 
   useEffect(() => {
-    const skip = () => {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const timer = setTimeout(() => {
       setIntroWord(2);
       setCurtainOpen(true);
       setShowIntro(false);
-    };
-
-    try {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const seen = sessionStorage.getItem('aghna_intro_seen') === '1';
-      if (reduceMotion || seen) {
-        const timer = setTimeout(skip, 0);
-        return () => clearTimeout(timer);
-      }
-      sessionStorage.setItem('aghna_intro_seen', '1');
-    } catch {
-      // storage can be unavailable in private browsing
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
