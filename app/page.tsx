@@ -63,8 +63,8 @@ export default function Portfolio() {
   const [slideDirection, setSlideDirection] = useState<1 | -1>(1);
   const [isVideoMounted, setIsVideoMounted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
-  const [introWord, setIntroWord] = useState(-1);
-  const [curtainOpen, setCurtainOpen] = useState(false);
+  const [activeWordIndex, setActiveWordIndex] = useState(-1);
+  const [isIntroBright, setIsIntroBright] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // Contact Form States
@@ -213,23 +213,46 @@ export default function Portfolio() {
   useEffect(() => {
     if (!showIntro) return;
 
-    const timers = [
-      setTimeout(() => setIntroWord(0), 400),
-      setTimeout(() => setIntroWord(1), 1000),
-      setTimeout(() => setIntroWord(2), 1600),
-      setTimeout(() => setCurtainOpen(true), 3000),
-      setTimeout(() => setShowIntro(false), 4200),
-    ];
+    // Word 1: "seni"
+    const t1 = setTimeout(() => {
+      setActiveWordIndex(0);
+    }, 600);
 
-    return () => timers.forEach(clearTimeout);
+    // Word 2: "adalah"
+    const t2 = setTimeout(() => {
+      setActiveWordIndex(1);
+    }, 1400);
+
+    // Word 3: "saya"
+    const t3 = setTimeout(() => {
+      setActiveWordIndex(2);
+    }, 2200);
+
+    // Transition to bright background
+    const t4 = setTimeout(() => {
+      setIsIntroBright(true);
+    }, 3400);
+
+    // Close intro and enter website
+    const t5 = setTimeout(() => {
+      setShowIntro(false);
+    }, 4700);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+    };
   }, [showIntro]);
 
   useEffect(() => {
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const timer = setTimeout(() => {
-      setIntroWord(2);
-      setCurtainOpen(true);
+      setActiveWordIndex(2);
+      setIsIntroBright(true);
       setShowIntro(false);
     }, 0);
     return () => clearTimeout(timer);
@@ -239,8 +262,7 @@ export default function Portfolio() {
     if (!showIntro) return;
 
     const skipIntro = () => {
-      setIntroWord(2);
-      setCurtainOpen(true);
+      setIsIntroBright(true);
       setShowIntro(false);
     };
 
@@ -367,58 +389,16 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="bg-neutral-50 selection:bg-accent selection:text-white min-h-screen">
-      {/* Intro curtain */}
-      {showIntro && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden"
-          role="presentation"
-          aria-hidden="true"
-        >
-          <motion.div
-            className="absolute inset-y-0 left-0 w-[51%] bg-[#050505]"
-            initial={{ x: '0%' }}
-            animate={{ x: curtainOpen ? '-100%' : '0%' }}
-            transition={{ duration: 1.15, ease: [0.83, 0, 0.17, 1] }}
-          />
-          <motion.div
-            className="absolute inset-y-0 right-0 w-[51%] bg-[#050505]"
-            initial={{ x: '0%' }}
-            animate={{ x: curtainOpen ? '100%' : '0%' }}
-            transition={{ duration: 1.15, ease: [0.83, 0, 0.17, 1] }}
-          />
-
-          <motion.div
-            className="relative z-10 flex select-none flex-col items-center px-6 text-center font-heading text-[20vw] font-black uppercase leading-[0.82] tracking-[-0.04em] text-white md:text-[12vw]"
-            animate={{ opacity: curtainOpen ? 0 : 1 }}
-            transition={{ duration: 0.35 }}
-          >
-            {['Seni', 'Adalah', 'Saya'].map((word, index) => (
-              <span key={word} className="block overflow-hidden pb-[0.06em]">
-                <motion.span
-                  className="block"
-                  initial={{ y: '110%', opacity: 0 }}
-                  animate={{
-                    y: introWord >= index ? '0%' : '110%',
-                    opacity: introWord >= index ? 1 : 0,
-                  }}
-                  transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {word}
-                  {index === 2 && <span className="text-accent">.</span>}
-                </motion.span>
-              </span>
-            ))}
-          </motion.div>
-        </div>
-      )}
-
+    <div className={`bg-neutral-50 selection:bg-accent selection:text-white transition-colors duration-[1500ms] ${showIntro ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {/* Noise Texture */}
       <div className="noise" />
 
       {/* Slim Scroll Progress Bar */}
       <motion.div 
         className="fixed top-0 left-0 right-0 h-[3px] bg-accent z-[160] origin-left"
+        style={{ 
+          opacity: showIntro ? 0 : 1 
+        }}
         animate={{ scaleX: scrollProgress }}
         transition={{ 
           scaleX: { type: 'spring', stiffness: 120, damping: 25, restDelta: 0.001 },
@@ -435,6 +415,11 @@ export default function Portfolio() {
               ? 'bg-white/95 backdrop-blur-xl py-3 lg:py-4 border-black/5 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.05)]' 
               : 'max-lg:bg-white/95 max-lg:backdrop-blur-xl max-lg:border-black/5 max-lg:shadow-[0_2px_15px_-3px_rgba(0,0,0,0.05)] bg-transparent py-4 lg:py-8 border-transparent'
         }`}
+        style={{
+          opacity: isIntroBright ? 1 : 0,
+          pointerEvents: isIntroBright ? 'auto' : 'none',
+          transform: isIntroBright ? 'translateY(0)' : 'translateY(-10px)'
+        }}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex justify-between items-center">
           <div className="flex flex-col justify-center relative z-20">
@@ -540,11 +525,16 @@ export default function Portfolio() {
       {/* Hero Section */}
       <section 
         id="beranda" 
-        className="relative min-h-[100vh] w-full flex flex-col justify-center pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden border-b border-black/5 bg-neutral-50"
+        className={`relative min-h-[100vh] w-full flex flex-col justify-center pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden border-b border-black/5 transition-colors duration-[1500ms] ease-in-out ${
+          isIntroBright ? 'bg-neutral-50' : 'bg-[#020202]'
+        }`}
       >
         
         {/* Sleek Swiss-style editorial structure background graphic */}
-        <div className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 opacity-[0.03] lg:opacity-[0.05] pointer-events-none select-none overflow-hidden flex items-center justify-center">
+        <div 
+          className="absolute top-0 right-0 w-full lg:w-[60%] h-full z-0 opacity-[0.03] lg:opacity-[0.05] pointer-events-none select-none overflow-hidden flex items-center justify-center transition-all duration-[1000ms]"
+          style={{ opacity: isIntroBright ? undefined : 0 }}
+        >
           {/* Subtle Grid Lines & Vertical Typography */}
           <div className="absolute inset-0 grid grid-cols-4 h-full w-full border-l border-black/5">
             <div className="border-r border-black/5 h-full" />
@@ -559,10 +549,11 @@ export default function Portfolio() {
 
         {/* Local Background Video - Sleek, Lag-free, Self-hosted */}
         <div 
-          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 overflow-hidden bg-neutral-100 select-none pointer-events-none"
+          className="absolute top-0 right-0 w-full lg:w-[65%] h-full z-0 opacity-15 md:opacity-20 transition-all duration-[1000ms] overflow-hidden bg-neutral-100 select-none pointer-events-none"
           style={{ 
             maskImage: 'linear-gradient(to right, transparent, black 45%)', 
             WebkitMaskImage: 'linear-gradient(to right, transparent, black 45%)',
+            opacity: isIntroBright ? undefined : 0
           }}
         >
           {isVideoMounted ? (
@@ -583,7 +574,10 @@ export default function Portfolio() {
         </div>
 
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
-          <motion.div className="relative z-[10]">
+          <motion.div
+            className="relative z-[10]"
+            style={{ pointerEvents: isIntroBright ? 'auto' : 'none' }}
+          >
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -592,7 +586,7 @@ export default function Portfolio() {
             >
               <motion.div 
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: isIntroBright ? 1 : 0 }}
                 transition={{ duration: 0.8 }}
                 className="flex items-center gap-4"
               >
@@ -601,18 +595,78 @@ export default function Portfolio() {
               </motion.div>
               
               <h1 className="font-heading text-6xl xs:text-7xl sm:text-7xl md:text-8xl lg:text-[6vw] xl:text-[6.8vw] 2xl:text-[7.5rem] font-black leading-[0.9] tracking-tight uppercase mt-4">
-                <span className="block select-none text-dark">Seni</span>
-                <span className="block select-none text-neutral-300 transition-colors duration-700 hover:text-accent">
-                  Adalah
-                </span>
-                <span className="block select-none text-dark">
-                  Saya<span className="text-accent">.</span>
-                </span>
+                {/* Word 1: Seni */}
+                <div className="overflow-hidden py-1.5 -my-1.5">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 0 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 0 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright ? "text-dark" : "text-white"
+                    }`}
+                  >
+                    Seni
+                  </motion.span>
+                </div>
+
+                {/* Word 2: Adalah */}
+                <div className="overflow-hidden py-1.5 -my-1.5">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 1 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 1 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright 
+                        ? "text-neutral-300 hover:text-accent transition-colors duration-700" 
+                        : "text-white/20"
+                    }`}
+                  >
+                    Adalah
+                  </motion.span>
+                </div>
+
+                {/* Word 3: Saya. */}
+                <div className="overflow-hidden py-1.5 -my-1.5">
+                  <motion.span
+                    initial={{ y: "115%", opacity: 0 }}
+                    animate={{ 
+                      y: activeWordIndex >= 2 ? 0 : "115%", 
+                      opacity: activeWordIndex >= 2 ? 1 : 0,
+                    }}
+                    transition={{
+                      y: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.7 }
+                    }}
+                    className={`block select-none cursor-default transition-colors duration-1000 ${
+                      isIntroBright ? "text-dark" : "text-white"
+                    }`}
+                  >
+                    Saya<motion.span 
+                      animate={{ color: isIntroBright ? "#8A5F41" : "#ffffff" }}
+                      className="transition-colors duration-1000"
+                    >.</motion.span>
+                  </motion.span>
+                </div>
               </h1>
 
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ 
+                  opacity: isIntroBright ? 1 : 0,
+                  y: isIntroBright ? 0 : 15 
+                }}
                 transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
                 className="flex flex-col lg:flex-row items-start lg:items-end justify-between mt-8 sm:mt-12 gap-6 lg:gap-10 w-full"
               >
